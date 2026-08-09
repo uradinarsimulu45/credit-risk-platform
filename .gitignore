@@ -1,6 +1,102 @@
-venv/
+```gitignore
+# ==============================
+# Python
+# ==============================
+
 __pycache__/
-*.pyc
+*.py[cod]
+*$py.class
+
+# ==============================
+# Virtual Environment
+# ==============================
+
+venv/
+.venv/
+env/
+ENV/
+
+# ==============================
+# Environment Variables / Secrets
+# ==============================
+
 .env
-.pytest_cache/
+.env.*
+!.env.example
+
+# ==============================
+# Dataset Files
+# ==============================
+
+data/raw/
+data/processed/
+
+# Large dataset files
+*.csv
+*.csv.gz
+*.zip
+*.parquet
+
+# ==============================
+# Machine Learning Models
+# ==============================
+
+*.pkl
+*.pickle
+*.joblib
+*.h5
+*.pt
+*.pth
+*.onnx
+
+# ==============================
+# Jupyter Notebook
+# ==============================
+
 .ipynb_checkpoints/
+
+# ==============================
+# Testing / Coverage
+# ==============================
+
+.pytest_cache/
+.coverage
+htmlcov/
+
+# ==============================
+# IDE / Editors
+# ==============================
+
+.vscode/
+.idea/
+
+# ==============================
+# OS Files
+# ==============================
+
+.DS_Store
+Thumbs.db
+
+# ==============================
+# Logs
+# ==============================
+
+*.log
+
+# ==============================
+# Build / Distribution
+# ==============================
+
+build/
+dist/
+*.egg-info/
+
+# ==============================
+# Temporary Files
+# ==============================
+
+*.tmp
+*.temp
+*.swp
+*.swo
+```
