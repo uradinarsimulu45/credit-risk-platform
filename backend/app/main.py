@@ -1,7 +1,6 @@
 """
-Day 7 - Credit Risk Prediction API
-
-FastAPI backend for the Credit Risk Platform.
+Day 8 - Credit Risk Prediction API
+API validation and model information.
 """
 
 import os
@@ -10,7 +9,7 @@ import joblib
 import pandas as pd
 
 from fastapi import FastAPI, HTTPException
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 
 
 # ============================================================
@@ -26,13 +25,13 @@ MODEL_PATH = "ml/models/best_credit_risk_model.joblib"
 
 app = FastAPI(
     title="Credit Risk Prediction API",
-    description="API for predicting loan default risk",
-    version="1.0.0",
+    description="Credit risk prediction using a Random Forest model.",
+    version="1.1.0",
 )
 
 
 # ============================================================
-# Load Trained Model
+# Load Model
 # ============================================================
 
 if not os.path.exists(MODEL_PATH):
@@ -49,29 +48,86 @@ model = joblib.load(MODEL_PATH)
 
 class LoanApplication(BaseModel):
 
-    loan_amnt: float
-    term: str
-    int_rate: float
-    installment: float
-    grade: str
-    sub_grade: str
+    loan_amnt: float = Field(
+        gt=0,
+        description="Requested loan amount"
+    )
+
+    term: str = Field(
+        description="Loan term, e.g. 36 months"
+    )
+
+    int_rate: float = Field(
+        gt=0,
+        description="Interest rate"
+    )
+
+    installment: float = Field(
+        gt=0,
+        description="Monthly installment"
+    )
+
+    grade: str = Field(
+        min_length=1,
+        max_length=1,
+        description="Loan grade A-G"
+    )
+
+    sub_grade: str = Field(
+        min_length=2,
+        max_length=2,
+        description="Loan sub-grade, e.g. B3"
+    )
+
     emp_length: str
+
     home_ownership: str
-    annual_inc: float
+
+    annual_inc: float = Field(
+        ge=0,
+        description="Annual income"
+    )
+
     verification_status: str
+
     purpose: str
-    dti: float
-    delinq_2yrs: float
-    open_acc: float
-    pub_rec: float
-    revol_bal: float
-    revol_util: float
-    total_acc: float
+
+    dti: float = Field(
+        ge=0,
+        description="Debt-to-income ratio"
+    )
+
+    delinq_2yrs: float = Field(
+        ge=0
+    )
+
+    open_acc: float = Field(
+        ge=0
+    )
+
+    pub_rec: float = Field(
+        ge=0
+    )
+
+    revol_bal: float = Field(
+        ge=0
+    )
+
+    revol_util: float = Field(
+        ge=0,
+        le=100,
+        description="Revolving utilization percentage"
+    )
+
+    total_acc: float = Field(
+        ge=0
+    )
+
     application_type: str
 
 
 # ============================================================
-# Root / Health Check
+# Root Endpoint
 # ============================================================
 
 @app.get("/")
@@ -80,7 +136,39 @@ def root():
     return {
         "message": "Credit Risk Prediction API is running",
         "status": "healthy",
+        "version": "1.1.0",
+    }
+
+
+# ============================================================
+# Health Endpoint
+# ============================================================
+
+@app.get("/health")
+def health():
+
+    return {
+        "status": "healthy",
+        "model_loaded": True,
+        "model_type": "Random Forest",
+    }
+
+
+# ============================================================
+# Model Information Endpoint
+# ============================================================
+
+@app.get("/model-info")
+def model_info():
+
+    return {
         "model": "Random Forest",
+        "purpose": "Credit Risk Prediction",
+        "roc_auc": 0.7096,
+        "accuracy": 0.6385,
+        "precision": 0.3284,
+        "recall": 0.6721,
+        "f1_score": 0.4412,
     }
 
 
@@ -90,16 +178,13 @@ def root():
 
 def prepare_features(application: LoanApplication):
 
-    # Convert request to DataFrame
     data = pd.DataFrame(
         [application.model_dump()]
     )
 
     # --------------------------------------------------------
-    # Convert TERM
-    #
+    # Convert term
     # "36 months" -> 36
-    # "60 months" -> 60
     # --------------------------------------------------------
 
     data["term"] = (
@@ -110,12 +195,7 @@ def prepare_features(application: LoanApplication):
     )
 
     # --------------------------------------------------------
-    # Convert EMPLOYMENT LENGTH
-    #
-    # "< 1 year" -> 0
-    # "1 year"   -> 1
-    # "5 years"  -> 5
-    # "10+ years" -> 10
+    # Convert employment length
     # --------------------------------------------------------
 
     emp_map = {
@@ -138,9 +218,7 @@ def prepare_features(application: LoanApplication):
     )
 
     # --------------------------------------------------------
-    # Convert REVOL UTIL
-    #
-    # "45.5%" -> 45.5
+    # Convert revolving utilization
     # --------------------------------------------------------
 
     data["revol_util"] = (
@@ -151,7 +229,7 @@ def prepare_features(application: LoanApplication):
     )
 
     # --------------------------------------------------------
-    # Loan-to-Income
+    # Engineered features
     # --------------------------------------------------------
 
     data["loan_to_income"] = (
@@ -159,18 +237,10 @@ def prepare_features(application: LoanApplication):
         / data["annual_inc"].replace(0, float("nan"))
     )
 
-    # --------------------------------------------------------
-    # Installment-to-Income
-    # --------------------------------------------------------
-
     data["installment_to_income"] = (
         (data["installment"] * 12)
         / data["annual_inc"].replace(0, float("nan"))
     )
-
-    # --------------------------------------------------------
-    # Income Missing Flag
-    # --------------------------------------------------------
 
     data["income_missing"] = (
         data["annual_inc"]
@@ -190,29 +260,16 @@ def predict(application: LoanApplication):
 
     try:
 
-        # Prepare features exactly as during training
         data = prepare_features(application)
-
-        # ----------------------------------------------------
-        # Model prediction
-        # ----------------------------------------------------
 
         prediction = model.predict(data)[0]
 
         probability = model.predict_proba(data)[0][1]
 
-        # ----------------------------------------------------
-        # Risk classification
-        # ----------------------------------------------------
-
         if prediction == 1:
             risk = "High Risk"
         else:
             risk = "Low Risk"
-
-        # ----------------------------------------------------
-        # Response
-        # ----------------------------------------------------
 
         return {
             "prediction": int(prediction),
