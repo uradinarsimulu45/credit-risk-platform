@@ -1,6 +1,6 @@
 """
-Day 8 - Credit Risk Prediction API
-API validation and model information.
+Credit Risk Platform
+Day 9 - FastAPI Backend + Frontend Integration
 """
 
 import os
@@ -9,6 +9,7 @@ import joblib
 import pandas as pd
 
 from fastapi import FastAPI, HTTPException
+from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel, Field
 
 
@@ -26,7 +27,20 @@ MODEL_PATH = "ml/models/best_credit_risk_model.joblib"
 app = FastAPI(
     title="Credit Risk Prediction API",
     description="Credit risk prediction using a Random Forest model.",
-    version="1.1.0",
+    version="1.2.0",
+)
+
+
+# ============================================================
+# CORS Configuration
+# ============================================================
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
 )
 
 
@@ -136,7 +150,7 @@ def root():
     return {
         "message": "Credit Risk Prediction API is running",
         "status": "healthy",
-        "version": "1.1.0",
+        "version": "1.2.0",
     }
 
 
@@ -155,7 +169,7 @@ def health():
 
 
 # ============================================================
-# Model Information Endpoint
+# Model Information
 # ============================================================
 
 @app.get("/model-info")
@@ -178,13 +192,16 @@ def model_info():
 
 def prepare_features(application: LoanApplication):
 
+    # Convert request to DataFrame
     data = pd.DataFrame(
         [application.model_dump()]
     )
 
     # --------------------------------------------------------
-    # Convert term
+    # TERM
+    #
     # "36 months" -> 36
+    # "60 months" -> 60
     # --------------------------------------------------------
 
     data["term"] = (
@@ -195,7 +212,7 @@ def prepare_features(application: LoanApplication):
     )
 
     # --------------------------------------------------------
-    # Convert employment length
+    # EMPLOYMENT LENGTH
     # --------------------------------------------------------
 
     emp_map = {
@@ -218,7 +235,7 @@ def prepare_features(application: LoanApplication):
     )
 
     # --------------------------------------------------------
-    # Convert revolving utilization
+    # REVOLVING UTILIZATION
     # --------------------------------------------------------
 
     data["revol_util"] = (
@@ -229,18 +246,32 @@ def prepare_features(application: LoanApplication):
     )
 
     # --------------------------------------------------------
-    # Engineered features
+    # LOAN TO INCOME
     # --------------------------------------------------------
 
     data["loan_to_income"] = (
         data["loan_amnt"]
-        / data["annual_inc"].replace(0, float("nan"))
+        / data["annual_inc"].replace(
+            0,
+            float("nan")
+        )
     )
+
+    # --------------------------------------------------------
+    # INSTALLMENT TO INCOME
+    # --------------------------------------------------------
 
     data["installment_to_income"] = (
         (data["installment"] * 12)
-        / data["annual_inc"].replace(0, float("nan"))
+        / data["annual_inc"].replace(
+            0,
+            float("nan")
+        )
     )
+
+    # --------------------------------------------------------
+    # INCOME MISSING
+    # --------------------------------------------------------
 
     data["income_missing"] = (
         data["annual_inc"]
@@ -260,16 +291,33 @@ def predict(application: LoanApplication):
 
     try:
 
+        # Prepare input features
         data = prepare_features(application)
+
+        # ----------------------------------------------------
+        # Prediction
+        # ----------------------------------------------------
 
         prediction = model.predict(data)[0]
 
+        # ----------------------------------------------------
+        # Probability
+        # ----------------------------------------------------
+
         probability = model.predict_proba(data)[0][1]
+
+        # ----------------------------------------------------
+        # Risk Classification
+        # ----------------------------------------------------
 
         if prediction == 1:
             risk = "High Risk"
         else:
             risk = "Low Risk"
+
+        # ----------------------------------------------------
+        # API Response
+        # ----------------------------------------------------
 
         return {
             "prediction": int(prediction),

@@ -1,0 +1,455 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Credit Risk Prediction</title>
+
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            font-family: Arial, sans-serif;
+            background: #f4f6f8;
+            color: #222;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 40px auto;
+            padding: 25px;
+        }
+
+        h1 {
+            text-align: center;
+            margin-bottom: 10px;
+        }
+
+        .subtitle {
+            text-align: center;
+            color: #666;
+            margin-bottom: 30px;
+        }
+
+        .card {
+            background: white;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+        }
+
+        .form-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 18px;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+        }
+
+        label {
+            margin-bottom: 6px;
+            font-weight: bold;
+        }
+
+        input,
+        select {
+            padding: 11px;
+            border: 1px solid #ccc;
+            border-radius: 6px;
+            font-size: 15px;
+        }
+
+        button {
+            width: 100%;
+            margin-top: 25px;
+            padding: 14px;
+            border: none;
+            border-radius: 7px;
+            background: #2563eb;
+            color: white;
+            font-size: 17px;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background: #1d4ed8;
+        }
+
+        #result {
+            display: none;
+            margin-top: 25px;
+            padding: 20px;
+            border-radius: 8px;
+            background: #f1f5f9;
+        }
+
+        .result-title {
+            font-size: 22px;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+
+        .error {
+            color: #b91c1c;
+        }
+
+        @media (max-width: 700px) {
+            .form-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+<div class="container">
+
+    <h1>Credit Risk Prediction</h1>
+
+    <p class="subtitle">
+        Random Forest Credit Risk Assessment
+    </p>
+
+    <div class="card">
+
+        <form id="predictionForm">
+
+            <div class="form-grid">
+
+                <div class="form-group">
+                    <label>Loan Amount</label>
+                    <input type="number" id="loan_amnt" value="10000" required>
+                </div>
+
+                <div class="form-group">
+                    <label>Term</label>
+                    <select id="term">
+                        <option value="36 months">36 months</option>
+                        <option value="60 months">60 months</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label>Interest Rate (%)</label>
+                    <input type="number" step="0.01" id="int_rate" value="12.5" required>
+                </div>
+
+                <div class="form-group">
+                    <label>Installment</label>
+                    <input type="number" step="0.01" id="installment" value="334" required>
+                </div>
+
+                <div class="form-group">
+                    <label>Grade</label>
+                    <select id="grade">
+                        <option>A</option>
+                        <option>B</option>
+                        <option>C</option>
+                        <option>D</option>
+                        <option>E</option>
+                        <option>F</option>
+                        <option>G</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label>Sub Grade</label>
+                    <select id="sub_grade">
+                        <option>B3</option>
+                        <option>A1</option>
+                        <option>A2</option>
+                        <option>A3</option>
+                        <option>A4</option>
+                        <option>A5</option>
+                        <option>B1</option>
+                        <option>B2</option>
+                        <option>B4</option>
+                        <option>B5</option>
+                        <option>C1</option>
+                        <option>C2</option>
+                        <option>C3</option>
+                        <option>C4</option>
+                        <option>C5</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label>Employment Length</label>
+                    <select id="emp_length">
+                        <option>5 years</option>
+                        <option>&lt; 1 year</option>
+                        <option>1 year</option>
+                        <option>2 years</option>
+                        <option>3 years</option>
+                        <option>4 years</option>
+                        <option>6 years</option>
+                        <option>7 years</option>
+                        <option>8 years</option>
+                        <option>9 years</option>
+                        <option>10+ years</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label>Home Ownership</label>
+                    <select id="home_ownership">
+                        <option>RENT</option>
+                        <option>MORTGAGE</option>
+                        <option>OWN</option>
+                        <option>OTHER</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label>Annual Income</label>
+                    <input type="number" step="0.01" id="annual_inc" value="60000" required>
+                </div>
+
+                <div class="form-group">
+                    <label>Verification Status</label>
+                    <select id="verification_status">
+                        <option>Verified</option>
+                        <option>Source Verified</option>
+                        <option>Not Verified</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label>Purpose</label>
+                    <select id="purpose">
+                        <option>debt_consolidation</option>
+                        <option>credit_card</option>
+                        <option>home_improvement</option>
+                        <option>major_purchase</option>
+                        <option>medical</option>
+                        <option>car</option>
+                        <option>small_business</option>
+                        <option>other</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label>DTI</label>
+                    <input type="number" step="0.01" id="dti" value="18.5" required>
+                </div>
+
+                <div class="form-group">
+                    <label>Delinquencies (2 yrs)</label>
+                    <input type="number" id="delinq_2yrs" value="0" required>
+                </div>
+
+                <div class="form-group">
+                    <label>Open Accounts</label>
+                    <input type="number" id="open_acc" value="10" required>
+                </div>
+
+                <div class="form-group">
+                    <label>Public Records</label>
+                    <input type="number" id="pub_rec" value="0" required>
+                </div>
+
+                <div class="form-group">
+                    <label>Revolving Balance</label>
+                    <input type="number" id="revol_bal" value="8500" required>
+                </div>
+
+                <div class="form-group">
+                    <label>Revolving Utilization (%)</label>
+                    <input type="number" step="0.01" id="revol_util" value="45" required>
+                </div>
+
+                <div class="form-group">
+                    <label>Total Accounts</label>
+                    <input type="number" id="total_acc" value="20" required>
+                </div>
+
+                <div class="form-group">
+                    <label>Application Type</label>
+                    <select id="application_type">
+                        <option>Individual</option>
+                        <option>Joint App</option>
+                    </select>
+                </div>
+
+            </div>
+
+            <button type="submit">
+                Predict Credit Risk
+            </button>
+
+        </form>
+
+        <div id="result">
+
+            <div class="result-title">
+                Prediction Result
+            </div>
+
+            <p>
+                <strong>Risk:</strong>
+                <span id="risk"></span>
+            </p>
+
+            <p>
+                <strong>Default Probability:</strong>
+                <span id="probability"></span>
+            </p>
+
+            <p>
+                <strong>Prediction:</strong>
+                <span id="prediction"></span>
+            </p>
+
+        </div>
+
+    </div>
+
+</div>
+
+
+<script>
+
+const API_URL = "http://127.0.0.1:8000/predict";
+
+document
+    .getElementById("predictionForm")
+    .addEventListener("submit", async function(event) {
+
+        event.preventDefault();
+
+        const result = document.getElementById("result");
+
+        result.style.display = "block";
+
+        result.innerHTML = "<p>Predicting...</p>";
+
+        const data = {
+
+            loan_amnt:
+                Number(document.getElementById("loan_amnt").value),
+
+            term:
+                document.getElementById("term").value,
+
+            int_rate:
+                Number(document.getElementById("int_rate").value),
+
+            installment:
+                Number(document.getElementById("installment").value),
+
+            grade:
+                document.getElementById("grade").value,
+
+            sub_grade:
+                document.getElementById("sub_grade").value,
+
+            emp_length:
+                document.getElementById("emp_length").value,
+
+            home_ownership:
+                document.getElementById("home_ownership").value,
+
+            annual_inc:
+                Number(document.getElementById("annual_inc").value),
+
+            verification_status:
+                document.getElementById("verification_status").value,
+
+            purpose:
+                document.getElementById("purpose").value,
+
+            dti:
+                Number(document.getElementById("dti").value),
+
+            delinq_2yrs:
+                Number(document.getElementById("delinq_2yrs").value),
+
+            open_acc:
+                Number(document.getElementById("open_acc").value),
+
+            pub_rec:
+                Number(document.getElementById("pub_rec").value),
+
+            revol_bal:
+                Number(document.getElementById("revol_bal").value),
+
+            revol_util:
+                Number(document.getElementById("revol_util").value),
+
+            total_acc:
+                Number(document.getElementById("total_acc").value),
+
+            application_type:
+                document.getElementById("application_type").value
+        };
+
+        try {
+
+            const response = await fetch(
+                API_URL,
+                {
+                    method: "POST",
+
+                    headers: {
+                        "Content-Type": "application/json"
+                    },
+
+                    body: JSON.stringify(data)
+                }
+            );
+
+            const resultData = await response.json();
+
+            if (!response.ok) {
+                throw new Error(
+                    resultData.detail || "Prediction failed"
+                );
+            }
+
+            result.innerHTML = `
+                <div class="result-title">
+                    Prediction Result
+                </div>
+
+                <p>
+                    <strong>Risk:</strong>
+                    ${resultData.risk}
+                </p>
+
+                <p>
+                    <strong>Default Probability:</strong>
+                    ${(resultData.default_probability * 100).toFixed(2)}%
+                </p>
+
+                <p>
+                    <strong>Prediction:</strong>
+                    ${resultData.prediction}
+                </p>
+            `;
+
+        } catch (error) {
+
+            result.innerHTML = `
+                <p class="error">
+                    Error: ${error.message}
+                </p>
+            `;
+
+        }
+
+    });
+
+</script>
+
+</body>
+
+</html>
