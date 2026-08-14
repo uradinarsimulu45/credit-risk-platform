@@ -1,0 +1,259 @@
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    font-family: Arial, sans-serif;
+    background: #f4f7fb;
+    color: #1f2937;
+}
+
+.container {
+    max-width: 1200px;
+    margin: auto;
+    padding: 30px 20px;
+}
+
+.header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 30px;
+}
+
+.header h1 {
+    font-size: 32px;
+    margin-bottom: 8px;
+}
+
+.header p {
+    color: #64748b;
+}
+
+.status {
+    padding: 10px 16px;
+    border-radius: 20px;
+    background: white;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+    font-size: 14px;
+}
+
+.status-dot {
+    display: inline-block;
+    width: 9px;
+    height: 9px;
+    background: #22c55e;
+    border-radius: 50%;
+    margin-right: 7px;
+}
+
+.dashboard {
+    display: grid;
+    grid-template-columns: 2fr 1fr;
+    gap: 25px;
+}
+
+.card {
+    background: white;
+    border-radius: 14px;
+    padding: 28px;
+    box-shadow: 0 4px 18px rgba(0,0,0,0.07);
+}
+
+.card h2 {
+    margin-bottom: 8px;
+}
+
+.section-description {
+    color: #64748b;
+    margin-bottom: 25px;
+}
+
+.form-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 18px;
+}
+
+.form-group {
+    display: flex;
+    flex-direction: column;
+}
+
+.form-group label {
+    font-weight: 600;
+    margin-bottom: 7px;
+    font-size: 14px;
+}
+
+input,
+select {
+    width: 100%;
+    padding: 11px 12px;
+    border: 1px solid #d1d5db;
+    border-radius: 7px;
+    font-size: 14px;
+    background: white;
+}
+
+input:focus,
+select:focus {
+    outline: none;
+    border-color: #2563eb;
+}
+
+.buttons {
+    display: flex;
+    gap: 12px;
+    margin-top: 25px;
+}
+
+button {
+    border: none;
+    border-radius: 7px;
+    padding: 13px 20px;
+    font-size: 15px;
+    cursor: pointer;
+}
+
+.predict-button {
+    flex: 1;
+    background: #2563eb;
+    color: white;
+}
+
+.predict-button:hover {
+    background: #1d4ed8;
+}
+
+.predict-button:disabled {
+    background: #94a3b8;
+    cursor: not-allowed;
+}
+
+.reset-button {
+    background: #e5e7eb;
+    color: #374151;
+}
+
+.reset-button:hover {
+    background: #d1d5db;
+}
+
+.result-card {
+    min-height: 450px;
+}
+
+.result-content {
+    margin-top: 25px;
+}
+
+.result-placeholder {
+    text-align: center;
+    padding: 60px 15px;
+    color: #64748b;
+}
+
+.placeholder-icon {
+    width: 60px;
+    height: 60px;
+    margin: auto auto 20px;
+    border-radius: 50%;
+    background: #e2e8f0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 28px;
+}
+
+.result-placeholder h3 {
+    color: #334155;
+    margin-bottom: 10px;
+}
+
+.risk-result {
+    text-align: center;
+}
+
+.risk-badge {
+    display: inline-block;
+    padding: 10px 20px;
+    border-radius: 25px;
+    font-weight: bold;
+    margin-bottom: 25px;
+}
+
+.low-risk {
+    background: #dcfce7;
+    color: #166534;
+}
+
+.high-risk {
+    background: #fee2e2;
+    color: #991b1b;
+}
+
+.probability {
+    font-size: 42px;
+    font-weight: bold;
+    margin: 15px 0;
+}
+
+.probability-label {
+    color: #64748b;
+    font-size: 14px;
+}
+
+.prediction-value {
+    margin-top: 20px;
+    font-size: 15px;
+    color: #475569;
+}
+
+.loading {
+    text-align: center;
+    padding: 80px 10px;
+    color: #2563eb;
+}
+
+.error-message {
+    padding: 20px;
+    border-radius: 8px;
+    background: #fee2e2;
+    color: #991b1b;
+}
+
+footer {
+    text-align: center;
+    margin-top: 30px;
+    color: #64748b;
+    font-size: 13px;
+}
+
+@media (max-width: 850px) {
+
+    .dashboard {
+        grid-template-columns: 1fr;
+    }
+
+}
+
+@media (max-width: 600px) {
+
+    .header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 15px;
+    }
+
+    .form-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .buttons {
+        flex-direction: column;
+    }
+
+}
