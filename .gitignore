@@ -99,3 +99,4 @@ dist/
 *.swp
 *.swo
 ```
+backend/app/prediction_history.json

@@ -1,9 +1,11 @@
 """
 Credit Risk Platform
-Day 9 - FastAPI Backend + Frontend Integration
+Day 11 - FastAPI Backend + Prediction History
 """
 
 import os
+import json
+from datetime import datetime
 
 import joblib
 import pandas as pd
@@ -19,6 +21,11 @@ from pydantic import BaseModel, Field
 
 MODEL_PATH = "ml/models/best_credit_risk_model.joblib"
 
+HISTORY_PATH = os.path.join(
+    os.path.dirname(__file__),
+    "prediction_history.json"
+)
+
 
 # ============================================================
 # FastAPI Application
@@ -27,7 +34,7 @@ MODEL_PATH = "ml/models/best_credit_risk_model.joblib"
 app = FastAPI(
     title="Credit Risk Prediction API",
     description="Credit risk prediction using a Random Forest model.",
-    version="1.2.0",
+    version="1.3.0",
 )
 
 
@@ -141,6 +148,88 @@ class LoanApplication(BaseModel):
 
 
 # ============================================================
+# Prediction History Functions
+# ============================================================
+
+def load_history():
+    """Load prediction history from JSON."""
+
+    if not os.path.exists(HISTORY_PATH):
+        return []
+
+    try:
+
+        with open(
+            HISTORY_PATH,
+            "r",
+            encoding="utf-8"
+        ) as file:
+
+            return json.load(file)
+
+    except (
+        json.JSONDecodeError,
+        OSError
+    ):
+
+        return []
+
+
+def save_prediction(
+    prediction,
+    risk,
+    default_probability
+):
+    """Save a prediction to history."""
+
+    history = load_history()
+
+    record = {
+        "timestamp": datetime.now().isoformat(
+            timespec="seconds"
+        ),
+        "prediction": int(prediction),
+        "risk": risk,
+        "default_probability": round(
+            float(default_probability),
+            4
+        )
+    }
+
+    history.append(record)
+
+    with open(
+        HISTORY_PATH,
+        "w",
+        encoding="utf-8"
+    ) as file:
+
+        json.dump(
+            history,
+            file,
+            indent=4
+        )
+
+    return record
+
+
+def clear_prediction_history():
+    """Clear all prediction history."""
+
+    with open(
+        HISTORY_PATH,
+        "w",
+        encoding="utf-8"
+    ) as file:
+
+        json.dump(
+            [],
+            file,
+            indent=4
+        )
+
+
+# ============================================================
 # Root Endpoint
 # ============================================================
 
@@ -150,7 +239,7 @@ def root():
     return {
         "message": "Credit Risk Prediction API is running",
         "status": "healthy",
-        "version": "1.2.0",
+        "version": "1.3.0",
     }
 
 
@@ -190,9 +279,12 @@ def model_info():
 # Feature Engineering
 # ============================================================
 
-def prepare_features(application: LoanApplication):
+def prepare_features(
+    application: LoanApplication
+):
 
     # Convert request to DataFrame
+
     data = pd.DataFrame(
         [application.model_dump()]
     )
@@ -216,6 +308,7 @@ def prepare_features(application: LoanApplication):
     # --------------------------------------------------------
 
     emp_map = {
+
         "< 1 year": 0,
         "1 year": 1,
         "2 years": 2,
@@ -227,6 +320,7 @@ def prepare_features(application: LoanApplication):
         "8 years": 8,
         "9 years": 9,
         "10+ years": 10,
+
     }
 
     data["emp_length"] = (
@@ -241,7 +335,11 @@ def prepare_features(application: LoanApplication):
     data["revol_util"] = (
         data["revol_util"]
         .astype(str)
-        .str.replace("%", "", regex=False)
+        .str.replace(
+            "%",
+            "",
+            regex=False
+        )
         .astype(float)
     )
 
@@ -287,45 +385,132 @@ def prepare_features(application: LoanApplication):
 # ============================================================
 
 @app.post("/predict")
-def predict(application: LoanApplication):
+def predict(
+    application: LoanApplication
+):
 
     try:
 
+        # ----------------------------------------------------
         # Prepare input features
-        data = prepare_features(application)
+        # ----------------------------------------------------
+
+        data = prepare_features(
+            application
+        )
 
         # ----------------------------------------------------
         # Prediction
         # ----------------------------------------------------
 
-        prediction = model.predict(data)[0]
+        prediction = model.predict(
+            data
+        )[0]
 
         # ----------------------------------------------------
         # Probability
         # ----------------------------------------------------
 
-        probability = model.predict_proba(data)[0][1]
+        probability = model.predict_proba(
+            data
+        )[0][1]
 
         # ----------------------------------------------------
         # Risk Classification
         # ----------------------------------------------------
 
         if prediction == 1:
+
             risk = "High Risk"
+
         else:
+
             risk = "Low Risk"
+
+        # ----------------------------------------------------
+        # Save prediction history
+        # ----------------------------------------------------
+
+        record = save_prediction(
+            prediction=prediction,
+            risk=risk,
+            default_probability=probability
+        )
 
         # ----------------------------------------------------
         # API Response
         # ----------------------------------------------------
 
         return {
+
             "prediction": int(prediction),
+
             "risk": risk,
+
             "default_probability": round(
                 float(probability),
                 4
             ),
+
+            "timestamp": record[
+                "timestamp"
+            ]
+
+        }
+
+    except Exception as error:
+
+        raise HTTPException(
+            status_code=500,
+            detail=str(error)
+        )
+
+
+# ============================================================
+# Prediction History Endpoint
+# ============================================================
+
+@app.get("/history")
+def get_prediction_history():
+
+    try:
+
+        history = load_history()
+
+        return {
+
+            "count": len(history),
+
+            "history": history
+
+        }
+
+    except Exception as error:
+
+        raise HTTPException(
+            status_code=500,
+            detail=str(error)
+        )
+
+
+# ============================================================
+# Clear Prediction History
+# ============================================================
+
+@app.delete("/history")
+def delete_prediction_history():
+
+    try:
+
+        clear_prediction_history()
+
+        return {
+
+            "message":
+                "Prediction history cleared successfully.",
+
+            "count": 0
+
         }
 
     except Exception as error:
