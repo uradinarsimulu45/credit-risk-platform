@@ -419,3 +419,44 @@
 
 </body>
 </html>
+<section class="history-section">
+    <div class="history-header">
+        <h2>Prediction History</h2>
+
+        <button
+            type="button"
+            id="refreshHistory"
+            class="secondary-button"
+        >
+            Refresh History
+        </button>
+
+        <button
+            type="button"
+            id="clearHistory"
+            class="danger-button"
+        >
+            Clear History
+        </button>
+    </div>
+
+    <div id="historyMessage">
+        Loading prediction history...
+    </div>
+
+    <div class="table-container">
+        <table id="historyTable">
+            <thead>
+                <tr>
+                    <th>Timestamp</th>
+                    <th>Risk</th>
+                    <th>Default Probability</th>
+                    <th>Prediction</th>
+                </tr>
+            </thead>
+
+            <tbody id="historyBody">
+            </tbody>
+        </table>
+    </div>
+</section>

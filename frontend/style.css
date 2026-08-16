@@ -257,3 +257,71 @@ footer {
     }
 
 }
+/* ============================================================
+   Prediction History
+   ============================================================ */
+
+.history-section {
+    margin-top: 40px;
+    padding: 25px;
+    border-radius: 12px;
+    background: #ffffff;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+}
+
+.history-header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    flex-wrap: wrap;
+    margin-bottom: 20px;
+}
+
+.history-header h2 {
+    margin-right: auto;
+}
+
+.secondary-button,
+.danger-button {
+    border: none;
+    padding: 10px 16px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-weight: 600;
+}
+
+.secondary-button {
+    background: #2563eb;
+    color: white;
+}
+
+.danger-button {
+    background: #dc2626;
+    color: white;
+}
+
+.table-container {
+    width: 100%;
+    overflow-x: auto;
+}
+
+#historyTable {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 15px;
+}
+
+#historyTable th,
+#historyTable td {
+    padding: 12px;
+    text-align: left;
+    border-bottom: 1px solid #ddd;
+}
+
+#historyTable th {
+    font-weight: 700;
+}
+
+.risk-badge {
+    font-weight: 600;
+}

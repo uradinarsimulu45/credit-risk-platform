@@ -1,4 +1,15 @@
-const API_URL = "http://127.0.0.1:8000/predict";
+// ============================================================
+// Credit Risk Platform - Frontend JavaScript
+// ============================================================
+
+const API_BASE_URL = "http://127.0.0.1:8000";
+const PREDICT_URL = `${API_BASE_URL}/predict`;
+const HISTORY_URL = `${API_BASE_URL}/history`;
+
+
+// ============================================================
+// DOM Elements
+// ============================================================
 
 const form = document.getElementById("predictionForm");
 const result = document.getElementById("result");
@@ -6,15 +17,35 @@ const predictButton = document.getElementById("predictButton");
 const resetButton = document.getElementById("resetButton");
 
 
+// ============================================================
+// Helper Functions
+// ============================================================
+
 function getNumber(id) {
-    return Number(document.getElementById(id).value);
+    const element = document.getElementById(id);
+
+    if (!element) {
+        throw new Error(`Field not found: ${id}`);
+    }
+
+    return Number(element.value);
 }
 
 
 function getValue(id) {
-    return document.getElementById(id).value;
+    const element = document.getElementById(id);
+
+    if (!element) {
+        throw new Error(`Field not found: ${id}`);
+    }
+
+    return element.value;
 }
 
+
+// ============================================================
+// Build API Request
+// ============================================================
 
 function buildRequestData() {
 
@@ -69,21 +100,36 @@ function buildRequestData() {
 }
 
 
+// ============================================================
+// Loading State
+// ============================================================
+
 function showLoading() {
 
     result.innerHTML = `
         <div class="loading">
+
             <h3>Analyzing Application...</h3>
-            <p>Please wait while the AI model evaluates the loan.</p>
+
+            <p>
+                Please wait while the AI model
+                evaluates the loan.
+            </p>
+
         </div>
     `;
 }
 
 
+// ============================================================
+// Display Prediction Result
+// ============================================================
+
 function showResult(data) {
 
     const probability =
-        (data.default_probability * 100).toFixed(2);
+        (Number(data.default_probability) * 100)
+        .toFixed(2);
 
     const riskClass =
         data.risk === "High Risk"
@@ -116,8 +162,15 @@ function showResult(data) {
         </div>
 
     `;
+
+    // Refresh history after successful prediction
+    loadPredictionHistory();
 }
 
+
+// ============================================================
+// Display Error
+// ============================================================
 
 function showError(message) {
 
@@ -135,96 +188,362 @@ function showError(message) {
 }
 
 
-form.addEventListener("submit", async function(event) {
+// ============================================================
+// Prediction Form
+// ============================================================
 
-    event.preventDefault();
+if (form) {
 
-    predictButton.disabled = true;
+    form.addEventListener(
+        "submit",
+        async function(event) {
 
-    predictButton.textContent = "Analyzing...";
+            event.preventDefault();
 
-    showLoading();
+            predictButton.disabled = true;
 
-    const data = buildRequestData();
+            predictButton.textContent =
+                "Analyzing...";
 
-    try {
+            showLoading();
 
-        const response = await fetch(
-            API_URL,
-            {
-                method: "POST",
+            try {
 
-                headers: {
-                    "Content-Type": "application/json"
-                },
+                const data =
+                    buildRequestData();
 
-                body: JSON.stringify(data)
+                console.log(
+                    "Sending prediction request:",
+                    data
+                );
+
+                const response =
+                    await fetch(
+                        PREDICT_URL,
+                        {
+                            method: "POST",
+
+                            headers: {
+                                "Content-Type":
+                                    "application/json"
+                            },
+
+                            body:
+                                JSON.stringify(data)
+                        }
+                    );
+
+                const responseData =
+                    await response.json();
+
+                console.log(
+                    "Prediction response:",
+                    responseData
+                );
+
+
+                if (!response.ok) {
+
+                    throw new Error(
+                        responseData.detail ||
+                        "Prediction request failed."
+                    );
+                }
+
+
+                showResult(responseData);
+
             }
+
+            catch (error) {
+
+                console.error(
+                    "Prediction error:",
+                    error
+                );
+
+                showError(
+                    error.message
+                );
+
+            }
+
+            finally {
+
+                predictButton.disabled =
+                    false;
+
+                predictButton.textContent =
+                    "Predict Credit Risk";
+            }
+        }
+    );
+}
+
+
+// ============================================================
+// Reset Form
+// ============================================================
+
+if (resetButton) {
+
+    resetButton.addEventListener(
+        "click",
+        function() {
+
+            form.reset();
+
+            result.innerHTML = `
+
+                <div class="result-placeholder">
+
+                    <div class="placeholder-icon">
+                        ?
+                    </div>
+
+                    <h3>No Prediction Yet</h3>
+
+                    <p>
+                        Submit the loan application
+                        to receive an AI-powered
+                        credit risk assessment.
+                    </p>
+
+                </div>
+
+            `;
+        }
+    );
+}
+
+
+// ============================================================
+// Load Prediction History
+// ============================================================
+
+async function loadPredictionHistory() {
+
+    const historyMessage =
+        document.getElementById(
+            "historyMessage"
+        );
+
+    const historyBody =
+        document.getElementById(
+            "historyBody"
         );
 
 
-        const responseData =
-            await response.json();
+    if (!historyMessage || !historyBody) {
+        return;
+    }
+
+
+    try {
+
+        const response =
+            await fetch(HISTORY_URL);
 
 
         if (!response.ok) {
 
             throw new Error(
-                responseData.detail ||
-                "Prediction request failed."
+                "Failed to load prediction history."
             );
-
         }
 
 
-        showResult(responseData);
+        const data =
+            await response.json();
+
+
+        historyBody.innerHTML = "";
+
+
+        if (
+            !data.history ||
+            data.history.length === 0
+        ) {
+
+            historyMessage.textContent =
+                "No predictions available.";
+
+            return;
+        }
+
+
+        historyMessage.textContent =
+            `${data.count} prediction(s) recorded.`;
+
+
+        data.history
+            .slice()
+            .reverse()
+            .forEach(
+                function(record) {
+
+                    const row =
+                        document.createElement(
+                            "tr"
+                        );
+
+
+                    const probability =
+                        (
+                            Number(
+                                record.default_probability
+                            ) * 100
+                        ).toFixed(2);
+
+
+                    row.innerHTML = `
+
+                        <td>
+                            ${record.timestamp}
+                        </td>
+
+                        <td>
+                            <span class="risk-badge">
+                                ${record.risk}
+                            </span>
+                        </td>
+
+                        <td>
+                            ${probability}%
+                        </td>
+
+                        <td>
+                            ${record.prediction}
+                        </td>
+
+                    `;
+
+
+                    historyBody.appendChild(row);
+                }
+            );
 
     }
 
     catch (error) {
 
-        console.error(error);
+        console.error(
+            "History error:",
+            error
+        );
 
-        showError(error.message);
-
+        historyMessage.textContent =
+            "Failed to load prediction history.";
     }
-
-    finally {
-
-        predictButton.disabled = false;
-
-        predictButton.textContent =
-            "Predict Credit Risk";
-
-    }
-
-});
+}
 
 
-resetButton.addEventListener(
-    "click",
+// ============================================================
+// Refresh History Button
+// ============================================================
+
+const refreshHistory =
+    document.getElementById(
+        "refreshHistory"
+    );
+
+
+if (refreshHistory) {
+
+    refreshHistory.addEventListener(
+        "click",
+        loadPredictionHistory
+    );
+}
+
+
+// ============================================================
+// Clear History
+// ============================================================
+
+const clearHistory =
+    document.getElementById(
+        "clearHistory"
+    );
+
+
+if (clearHistory) {
+
+    clearHistory.addEventListener(
+        "click",
+        async function() {
+
+            const confirmed =
+                confirm(
+                    "Are you sure you want to clear prediction history?"
+                );
+
+
+            if (!confirmed) {
+                return;
+            }
+
+
+            try {
+
+                const response =
+                    await fetch(
+                        HISTORY_URL,
+                        {
+                            method: "DELETE"
+                        }
+                    );
+
+
+                if (!response.ok) {
+
+                    const errorData =
+                        await response.json()
+                            .catch(
+                                () => ({})
+                            );
+
+                    throw new Error(
+                        errorData.detail ||
+                        "Failed to clear history."
+                    );
+                }
+
+
+                await loadPredictionHistory();
+
+
+                alert(
+                    "Prediction history cleared successfully."
+                );
+
+            }
+
+            catch (error) {
+
+                console.error(
+                    "Clear history error:",
+                    error
+                );
+
+                alert(
+                    error.message
+                );
+            }
+        }
+    );
+}
+
+
+// ============================================================
+// Load History When Page Opens
+// ============================================================
+
+document.addEventListener(
+    "DOMContentLoaded",
     function() {
 
-        form.reset();
-
-        result.innerHTML = `
-
-            <div class="result-placeholder">
-
-                <div class="placeholder-icon">
-                    ?
-                </div>
-
-                <h3>No Prediction Yet</h3>
-
-                <p>
-                    Submit the loan application to receive
-                    an AI-powered credit risk assessment.
-                </p>
-
-            </div>
-
-        `;
+        loadPredictionHistory();
 
     }
 );
