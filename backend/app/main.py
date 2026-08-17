@@ -519,3 +519,100 @@ def delete_prediction_history():
             status_code=500,
             detail=str(error)
         )
+# ============================================================
+# Prediction Statistics
+# ============================================================
+
+@app.get("/stats")
+def prediction_stats():
+
+    try:
+
+        history_file = "backend/app/prediction_history.json"
+
+        # No history yet
+        if not os.path.exists(history_file):
+
+            return {
+                "total_predictions": 0,
+                "low_risk": 0,
+                "high_risk": 0,
+                "average_default_probability": 0.0,
+                "high_risk_percentage": 0.0,
+            }
+
+        # Load prediction history
+        with open(
+            history_file,
+            "r",
+            encoding="utf-8"
+        ) as file:
+
+            history = json.load(file)
+
+        # Empty history
+        if not history:
+
+            return {
+                "total_predictions": 0,
+                "low_risk": 0,
+                "high_risk": 0,
+                "average_default_probability": 0.0,
+                "high_risk_percentage": 0.0,
+            }
+
+        total_predictions = len(history)
+
+        high_risk = sum(
+            1
+            for record in history
+            if record.get("prediction") == 1
+        )
+
+        low_risk = (
+            total_predictions - high_risk
+        )
+
+        probabilities = [
+            float(
+                record.get(
+                    "default_probability",
+                    0
+                )
+            )
+            for record in history
+        ]
+
+        average_probability = (
+            sum(probabilities)
+            / len(probabilities)
+        )
+
+        high_risk_percentage = (
+            high_risk
+            / total_predictions
+            * 100
+        )
+
+        return {
+            "total_predictions": total_predictions,
+            "low_risk": low_risk,
+            "high_risk": high_risk,
+            "average_default_probability":
+                round(
+                    average_probability,
+                    4
+                ),
+            "high_risk_percentage":
+                round(
+                    high_risk_percentage,
+                    2
+                ),
+        }
+
+    except Exception as error:
+
+        raise HTTPException(
+            status_code=500,
+            detail=str(error)
+        )
