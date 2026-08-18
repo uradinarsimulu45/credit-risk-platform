@@ -1,50 +1,92 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
+
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
 
     <title>Credit Risk Prediction</title>
 
-    <link rel="stylesheet" href="style.css">
+    <link
+        rel="stylesheet"
+        href="style.css"
+    >
+
 </head>
+
 
 <body>
 
 <div class="container">
 
+    <!-- ============================================================
+         HEADER
+    ============================================================ -->
+
     <header class="header">
+
         <div>
+
             <h1>Credit Risk Platform</h1>
-            <p>AI-powered loan default risk assessment</p>
+
+            <p>
+                AI-powered loan default risk assessment
+            </p>
+
         </div>
 
         <div class="status">
+
             <span class="status-dot"></span>
+
             API Ready
+
         </div>
+
     </header>
 
 
+    <!-- ============================================================
+         MAIN DASHBOARD
+    ============================================================ -->
+
     <main class="dashboard">
 
-        <!-- Input Card -->
+
+        <!-- ========================================================
+             LOAN APPLICATION
+        ======================================================== -->
 
         <section class="card">
 
             <h2>Loan Application</h2>
 
             <p class="section-description">
-                Enter the applicant's financial information to predict
-                credit risk.
+
+                Enter the applicant's financial information
+                to predict credit risk.
+
             </p>
+
 
             <form id="predictionForm">
 
                 <div class="form-grid">
 
+
+                    <!-- Loan Amount -->
+
                     <div class="form-group">
-                        <label for="loan_amnt">Loan Amount</label>
+
+                        <label for="loan_amnt">
+                            Loan Amount
+                        </label>
+
                         <input
                             type="number"
                             id="loan_amnt"
@@ -52,20 +94,37 @@
                             min="1"
                             required
                         >
+
                     </div>
 
 
+                    <!-- Term -->
+
                     <div class="form-group">
-                        <label for="term">Term</label>
+
+                        <label for="term">
+                            Term
+                        </label>
 
                         <select id="term">
-                            <option value="36 months">36 months</option>
-                            <option value="60 months">60 months</option>
+
+                            <option value="36 months">
+                                36 months
+                            </option>
+
+                            <option value="60 months">
+                                60 months
+                            </option>
+
                         </select>
+
                     </div>
 
 
+                    <!-- Interest Rate -->
+
                     <div class="form-group">
+
                         <label for="int_rate">
                             Interest Rate (%)
                         </label>
@@ -78,10 +137,14 @@
                             min="0"
                             required
                         >
+
                     </div>
 
 
+                    <!-- Installment -->
+
                     <div class="form-group">
+
                         <label for="installment">
                             Installment
                         </label>
@@ -94,13 +157,20 @@
                             min="0"
                             required
                         >
+
                     </div>
 
 
+                    <!-- Grade -->
+
                     <div class="form-group">
-                        <label for="grade">Grade</label>
+
+                        <label for="grade">
+                            Grade
+                        </label>
 
                         <select id="grade">
+
                             <option>A</option>
                             <option>B</option>
                             <option>C</option>
@@ -108,12 +178,19 @@
                             <option>E</option>
                             <option>F</option>
                             <option>G</option>
+
                         </select>
+
                     </div>
 
 
+                    <!-- Sub Grade -->
+
                     <div class="form-group">
-                        <label for="sub_grade">Sub Grade</label>
+
+                        <label for="sub_grade">
+                            Sub Grade
+                        </label>
 
                         <select id="sub_grade">
 
@@ -136,10 +213,14 @@
                             <option>C5</option>
 
                         </select>
+
                     </div>
 
 
+                    <!-- Employment Length -->
+
                     <div class="form-group">
+
                         <label for="emp_length">
                             Employment Length
                         </label>
@@ -159,10 +240,14 @@
                             <option>&lt; 1 year</option>
 
                         </select>
+
                     </div>
 
 
+                    <!-- Home Ownership -->
+
                     <div class="form-group">
+
                         <label for="home_ownership">
                             Home Ownership
                         </label>
@@ -175,10 +260,14 @@
                             <option>OTHER</option>
 
                         </select>
+
                     </div>
 
 
+                    <!-- Annual Income -->
+
                     <div class="form-group">
+
                         <label for="annual_inc">
                             Annual Income
                         </label>
@@ -190,10 +279,14 @@
                             min="0"
                             required
                         >
+
                     </div>
 
 
+                    <!-- Verification Status -->
+
                     <div class="form-group">
+
                         <label for="verification_status">
                             Verification Status
                         </label>
@@ -201,33 +294,74 @@
                         <select id="verification_status">
 
                             <option>Verified</option>
-                            <option>Source Verified</option>
-                            <option>Not Verified</option>
+
+                            <option>
+                                Source Verified
+                            </option>
+
+                            <option>
+                                Not Verified
+                            </option>
 
                         </select>
+
                     </div>
 
 
+                    <!-- Purpose -->
+
                     <div class="form-group">
-                        <label for="purpose">Purpose</label>
+
+                        <label for="purpose">
+                            Purpose
+                        </label>
 
                         <select id="purpose">
 
-                            <option>debt_consolidation</option>
-                            <option>credit_card</option>
-                            <option>home_improvement</option>
-                            <option>major_purchase</option>
-                            <option>medical</option>
-                            <option>car</option>
-                            <option>small_business</option>
-                            <option>other</option>
+                            <option>
+                                debt_consolidation
+                            </option>
+
+                            <option>
+                                credit_card
+                            </option>
+
+                            <option>
+                                home_improvement
+                            </option>
+
+                            <option>
+                                major_purchase
+                            </option>
+
+                            <option>
+                                medical
+                            </option>
+
+                            <option>
+                                car
+                            </option>
+
+                            <option>
+                                small_business
+                            </option>
+
+                            <option>
+                                other
+                            </option>
 
                         </select>
+
                     </div>
 
 
+                    <!-- DTI -->
+
                     <div class="form-group">
-                        <label for="dti">DTI</label>
+
+                        <label for="dti">
+                            DTI
+                        </label>
 
                         <input
                             type="number"
@@ -237,10 +371,14 @@
                             min="0"
                             required
                         >
+
                     </div>
 
 
+                    <!-- Delinquencies -->
+
                     <div class="form-group">
+
                         <label for="delinq_2yrs">
                             Delinquencies (2 yrs)
                         </label>
@@ -252,10 +390,14 @@
                             min="0"
                             required
                         >
+
                     </div>
 
 
+                    <!-- Open Accounts -->
+
                     <div class="form-group">
+
                         <label for="open_acc">
                             Open Accounts
                         </label>
@@ -267,10 +409,14 @@
                             min="0"
                             required
                         >
+
                     </div>
 
 
+                    <!-- Public Records -->
+
                     <div class="form-group">
+
                         <label for="pub_rec">
                             Public Records
                         </label>
@@ -282,10 +428,14 @@
                             min="0"
                             required
                         >
+
                     </div>
 
 
+                    <!-- Revolving Balance -->
+
                     <div class="form-group">
+
                         <label for="revol_bal">
                             Revolving Balance
                         </label>
@@ -297,10 +447,14 @@
                             min="0"
                             required
                         >
+
                     </div>
 
 
+                    <!-- Revolving Utilization -->
+
                     <div class="form-group">
+
                         <label for="revol_util">
                             Revolving Utilization (%)
                         </label>
@@ -314,10 +468,14 @@
                             max="100"
                             required
                         >
+
                     </div>
 
 
+                    <!-- Total Accounts -->
+
                     <div class="form-group">
+
                         <label for="total_acc">
                             Total Accounts
                         </label>
@@ -329,24 +487,36 @@
                             min="0"
                             required
                         >
+
                     </div>
 
 
+                    <!-- Application Type -->
+
                     <div class="form-group">
+
                         <label for="application_type">
                             Application Type
                         </label>
 
                         <select id="application_type">
 
-                            <option>Individual</option>
-                            <option>Joint App</option>
+                            <option>
+                                Individual
+                            </option>
+
+                            <option>
+                                Joint App
+                            </option>
 
                         </select>
+
                     </div>
 
                 </div>
 
+
+                <!-- Buttons -->
 
                 <div class="buttons">
 
@@ -357,6 +527,7 @@
                     >
                         Predict Credit Risk
                     </button>
+
 
                     <button
                         type="button"
@@ -373,7 +544,9 @@
         </section>
 
 
-        <!-- Result Card -->
+        <!-- ========================================================
+             RISK ASSESSMENT
+        ======================================================== -->
 
         <section class="card result-card">
 
@@ -390,11 +563,15 @@
                         ?
                     </div>
 
-                    <h3>No Prediction Yet</h3>
+                    <h3>
+                        No Prediction Yet
+                    </h3>
 
                     <p>
+
                         Submit the loan application to receive
                         an AI-powered credit risk assessment.
+
                     </p>
 
                 </div>
@@ -403,60 +580,212 @@
 
         </section>
 
+
+        <!-- ========================================================
+             MODEL STATISTICS - DAY 14
+        ======================================================== -->
+
+        <section class="stats-section">
+
+            <h2>Model Statistics</h2>
+
+            <div class="stats-grid">
+
+
+                <!-- Total Predictions -->
+
+                <div class="stat-card">
+
+                    <h3>
+                        Total Predictions
+                    </h3>
+
+                    <p id="totalPredictions">
+                        0
+                    </p>
+
+                </div>
+
+
+                <!-- Low Risk -->
+
+                <div class="stat-card">
+
+                    <h3>
+                        Low Risk
+                    </h3>
+
+                    <p id="lowRiskCount">
+                        0
+                    </p>
+
+                </div>
+
+
+                <!-- High Risk -->
+
+                <div class="stat-card">
+
+                    <h3>
+                        High Risk
+                    </h3>
+
+                    <p id="highRiskCount">
+                        0
+                    </p>
+
+                </div>
+
+
+                <!-- Average Risk -->
+
+                <div class="stat-card">
+
+                    <h3>
+                        Average Default Risk
+                    </h3>
+
+                    <p id="averageRisk">
+                        0%
+                    </p>
+
+                </div>
+
+
+                <!-- High Risk Rate -->
+
+                <div class="stat-card">
+
+                    <h3>
+                        High Risk Rate
+                    </h3>
+
+                    <p id="highRiskRate">
+                        0%
+                    </p>
+
+                </div>
+
+            </div>
+
+
+            <button
+                type="button"
+                id="refreshStats"
+                class="secondary-button"
+            >
+                Refresh Statistics
+            </button>
+
+
+            <p id="statsMessage"></p>
+
+        </section>
+
+
+        <!-- ========================================================
+             PREDICTION HISTORY
+        ======================================================== -->
+
+        <section class="history-section">
+
+            <div class="history-header">
+
+                <h2>
+                    Prediction History
+                </h2>
+
+
+                <button
+                    type="button"
+                    id="refreshHistory"
+                    class="secondary-button"
+                >
+                    Refresh History
+                </button>
+
+
+                <button
+                    type="button"
+                    id="clearHistory"
+                    class="danger-button"
+                >
+                    Clear History
+                </button>
+
+            </div>
+
+
+            <div id="historyMessage">
+
+                Loading prediction history...
+
+            </div>
+
+
+            <div class="table-container">
+
+                <table id="historyTable">
+
+                    <thead>
+
+                        <tr>
+
+                            <th>
+                                Timestamp
+                            </th>
+
+                            <th>
+                                Risk
+                            </th>
+
+                            <th>
+                                Default Probability
+                            </th>
+
+                            <th>
+                                Prediction
+                            </th>
+
+                        </tr>
+
+                    </thead>
+
+
+                    <tbody id="historyBody">
+                    </tbody>
+
+                </table>
+
+            </div>
+
+        </section>
+
+
     </main>
 
 
+    <!-- ============================================================
+         FOOTER
+    ============================================================ -->
+
     <footer>
+
         <p>
             Credit Risk Platform • Random Forest Model
         </p>
+
     </footer>
+
 
 </div>
 
 
+<!-- JavaScript -->
+
 <script src="script.js"></script>
 
+
 </body>
+
 </html>
-<section class="history-section">
-    <div class="history-header">
-        <h2>Prediction History</h2>
-
-        <button
-            type="button"
-            id="refreshHistory"
-            class="secondary-button"
-        >
-            Refresh History
-        </button>
-
-        <button
-            type="button"
-            id="clearHistory"
-            class="danger-button"
-        >
-            Clear History
-        </button>
-    </div>
-
-    <div id="historyMessage">
-        Loading prediction history...
-    </div>
-
-    <div class="table-container">
-        <table id="historyTable">
-            <thead>
-                <tr>
-                    <th>Timestamp</th>
-                    <th>Risk</th>
-                    <th>Default Probability</th>
-                    <th>Prediction</th>
-                </tr>
-            </thead>
-
-            <tbody id="historyBody">
-            </tbody>
-        </table>
-    </div>
-</section>
