@@ -14,6 +14,12 @@ Features:
 - CORS support
 - Input validation
 """
+from sqlalchemy.orm import Session
+from fastapi import Depends
+
+from .database import Base, engine, get_db
+from .models import LoanApplication as LoanApplicationDB
+from .models import Prediction
 
 import json
 import os
@@ -50,6 +56,7 @@ app = FastAPI(
     ),
     version=API_VERSION,
 )
+Base.metadata.create_all(bind=engine)
 
 
 # ============================================================
