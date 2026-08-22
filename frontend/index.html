@@ -2,750 +2,870 @@
 <html lang="en">
 
 <head>
-
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    <meta
-        name="viewport"
-        content="width=device-width, initial-scale=1.0"
-    >
+    <title>CreditRisk AI | Credit Risk Platform</title>
 
-    <title>Credit Risk Prediction</title>
-
-    <link
-        rel="stylesheet"
-        href="style.css"
-    >
-
+    <link rel="stylesheet" href="style.css">
 </head>
-
 
 <body>
 
-<div class="container">
-
-    <!-- ============================================================
+    <!-- =====================================================
          HEADER
-    ============================================================ -->
+    ====================================================== -->
 
-    <header class="header">
+    <header class="topbar">
 
-        <div>
+        <div class="brand">
 
-            <h1>Credit Risk Platform</h1>
+            <div class="brand-icon">
+                CR
+            </div>
 
-            <p>
-                AI-powered loan default risk assessment
-            </p>
+            <div>
+                <h1>CreditRisk AI</h1>
+                <p>Intelligent Credit Risk Assessment</p>
+            </div>
 
         </div>
 
-        <div class="status">
+
+        <div class="api-status">
 
             <span class="status-dot"></span>
 
-            API Ready
+            <span>API Online</span>
 
         </div>
 
     </header>
 
 
-    <!-- ============================================================
-         MAIN DASHBOARD
-    ============================================================ -->
+    <!-- =====================================================
+         MAIN
+    ====================================================== -->
 
-    <main class="dashboard">
+    <main class="container">
 
 
-        <!-- ========================================================
-             LOAN APPLICATION
-        ======================================================== -->
+        <!-- =================================================
+             HERO
+        ================================================== -->
 
-        <section class="card">
+        <section class="hero">
 
-            <h2>Loan Application</h2>
+            <div>
 
-            <p class="section-description">
+                <span class="eyebrow">
+                    AI-POWERED CREDIT ANALYTICS
+                </span>
 
-                Enter the applicant's financial information
-                to predict credit risk.
+                <h2>
+                    Make smarter lending decisions
+                </h2>
 
-            </p>
-
-
-            <form id="predictionForm">
-
-                <div class="form-grid">
-
-
-                    <!-- Loan Amount -->
-
-                    <div class="form-group">
-
-                        <label for="loan_amnt">
-                            Loan Amount
-                        </label>
-
-                        <input
-                            type="number"
-                            id="loan_amnt"
-                            value="10000"
-                            min="1"
-                            required
-                        >
-
-                    </div>
-
-
-                    <!-- Term -->
-
-                    <div class="form-group">
-
-                        <label for="term">
-                            Term
-                        </label>
-
-                        <select id="term">
-
-                            <option value="36 months">
-                                36 months
-                            </option>
-
-                            <option value="60 months">
-                                60 months
-                            </option>
-
-                        </select>
-
-                    </div>
-
-
-                    <!-- Interest Rate -->
-
-                    <div class="form-group">
-
-                        <label for="int_rate">
-                            Interest Rate (%)
-                        </label>
-
-                        <input
-                            type="number"
-                            id="int_rate"
-                            value="12.5"
-                            step="0.01"
-                            min="0"
-                            required
-                        >
-
-                    </div>
-
-
-                    <!-- Installment -->
-
-                    <div class="form-group">
-
-                        <label for="installment">
-                            Installment
-                        </label>
-
-                        <input
-                            type="number"
-                            id="installment"
-                            value="334"
-                            step="0.01"
-                            min="0"
-                            required
-                        >
-
-                    </div>
-
-
-                    <!-- Grade -->
-
-                    <div class="form-group">
-
-                        <label for="grade">
-                            Grade
-                        </label>
-
-                        <select id="grade">
-
-                            <option>A</option>
-                            <option>B</option>
-                            <option>C</option>
-                            <option>D</option>
-                            <option>E</option>
-                            <option>F</option>
-                            <option>G</option>
-
-                        </select>
-
-                    </div>
-
-
-                    <!-- Sub Grade -->
-
-                    <div class="form-group">
-
-                        <label for="sub_grade">
-                            Sub Grade
-                        </label>
-
-                        <select id="sub_grade">
-
-                            <option>A1</option>
-                            <option>A2</option>
-                            <option>A3</option>
-                            <option>A4</option>
-                            <option>A5</option>
-
-                            <option>B1</option>
-                            <option selected>B3</option>
-                            <option>B2</option>
-                            <option>B4</option>
-                            <option>B5</option>
-
-                            <option>C1</option>
-                            <option>C2</option>
-                            <option>C3</option>
-                            <option>C4</option>
-                            <option>C5</option>
-
-                        </select>
-
-                    </div>
-
-
-                    <!-- Employment Length -->
-
-                    <div class="form-group">
-
-                        <label for="emp_length">
-                            Employment Length
-                        </label>
-
-                        <select id="emp_length">
-
-                            <option>10+ years</option>
-                            <option>9 years</option>
-                            <option>8 years</option>
-                            <option>7 years</option>
-                            <option>6 years</option>
-                            <option selected>5 years</option>
-                            <option>4 years</option>
-                            <option>3 years</option>
-                            <option>2 years</option>
-                            <option>1 year</option>
-                            <option>&lt; 1 year</option>
-
-                        </select>
-
-                    </div>
-
-
-                    <!-- Home Ownership -->
-
-                    <div class="form-group">
-
-                        <label for="home_ownership">
-                            Home Ownership
-                        </label>
-
-                        <select id="home_ownership">
-
-                            <option>MORTGAGE</option>
-                            <option>RENT</option>
-                            <option>OWN</option>
-                            <option>OTHER</option>
-
-                        </select>
-
-                    </div>
-
-
-                    <!-- Annual Income -->
-
-                    <div class="form-group">
-
-                        <label for="annual_inc">
-                            Annual Income
-                        </label>
-
-                        <input
-                            type="number"
-                            id="annual_inc"
-                            value="60000"
-                            min="0"
-                            required
-                        >
-
-                    </div>
-
-
-                    <!-- Verification Status -->
-
-                    <div class="form-group">
-
-                        <label for="verification_status">
-                            Verification Status
-                        </label>
-
-                        <select id="verification_status">
-
-                            <option>Verified</option>
-
-                            <option>
-                                Source Verified
-                            </option>
-
-                            <option>
-                                Not Verified
-                            </option>
-
-                        </select>
-
-                    </div>
-
-
-                    <!-- Purpose -->
-
-                    <div class="form-group">
-
-                        <label for="purpose">
-                            Purpose
-                        </label>
-
-                        <select id="purpose">
-
-                            <option>
-                                debt_consolidation
-                            </option>
-
-                            <option>
-                                credit_card
-                            </option>
-
-                            <option>
-                                home_improvement
-                            </option>
-
-                            <option>
-                                major_purchase
-                            </option>
-
-                            <option>
-                                medical
-                            </option>
-
-                            <option>
-                                car
-                            </option>
-
-                            <option>
-                                small_business
-                            </option>
-
-                            <option>
-                                other
-                            </option>
-
-                        </select>
-
-                    </div>
-
-
-                    <!-- DTI -->
-
-                    <div class="form-group">
-
-                        <label for="dti">
-                            DTI
-                        </label>
-
-                        <input
-                            type="number"
-                            id="dti"
-                            value="18.5"
-                            step="0.01"
-                            min="0"
-                            required
-                        >
-
-                    </div>
-
-
-                    <!-- Delinquencies -->
-
-                    <div class="form-group">
-
-                        <label for="delinq_2yrs">
-                            Delinquencies (2 yrs)
-                        </label>
-
-                        <input
-                            type="number"
-                            id="delinq_2yrs"
-                            value="0"
-                            min="0"
-                            required
-                        >
-
-                    </div>
-
-
-                    <!-- Open Accounts -->
-
-                    <div class="form-group">
-
-                        <label for="open_acc">
-                            Open Accounts
-                        </label>
-
-                        <input
-                            type="number"
-                            id="open_acc"
-                            value="10"
-                            min="0"
-                            required
-                        >
-
-                    </div>
-
-
-                    <!-- Public Records -->
-
-                    <div class="form-group">
-
-                        <label for="pub_rec">
-                            Public Records
-                        </label>
-
-                        <input
-                            type="number"
-                            id="pub_rec"
-                            value="0"
-                            min="0"
-                            required
-                        >
-
-                    </div>
-
-
-                    <!-- Revolving Balance -->
-
-                    <div class="form-group">
-
-                        <label for="revol_bal">
-                            Revolving Balance
-                        </label>
-
-                        <input
-                            type="number"
-                            id="revol_bal"
-                            value="8500"
-                            min="0"
-                            required
-                        >
-
-                    </div>
-
-
-                    <!-- Revolving Utilization -->
-
-                    <div class="form-group">
-
-                        <label for="revol_util">
-                            Revolving Utilization (%)
-                        </label>
-
-                        <input
-                            type="number"
-                            id="revol_util"
-                            value="45"
-                            step="0.01"
-                            min="0"
-                            max="100"
-                            required
-                        >
-
-                    </div>
-
-
-                    <!-- Total Accounts -->
-
-                    <div class="form-group">
-
-                        <label for="total_acc">
-                            Total Accounts
-                        </label>
-
-                        <input
-                            type="number"
-                            id="total_acc"
-                            value="20"
-                            min="0"
-                            required
-                        >
-
-                    </div>
-
-
-                    <!-- Application Type -->
-
-                    <div class="form-group">
-
-                        <label for="application_type">
-                            Application Type
-                        </label>
-
-                        <select id="application_type">
-
-                            <option>
-                                Individual
-                            </option>
-
-                            <option>
-                                Joint App
-                            </option>
-
-                        </select>
-
-                    </div>
-
-                </div>
-
-
-                <!-- Buttons -->
-
-                <div class="buttons">
-
-                    <button
-                        type="submit"
-                        id="predictButton"
-                        class="predict-button"
-                    >
-                        Predict Credit Risk
-                    </button>
-
-
-                    <button
-                        type="button"
-                        id="resetButton"
-                        class="reset-button"
-                    >
-                        Reset
-                    </button>
-
-                </div>
-
-            </form>
-
-        </section>
-
-
-        <!-- ========================================================
-             RISK ASSESSMENT
-        ======================================================== -->
-
-        <section class="card result-card">
-
-            <h2>Risk Assessment</h2>
-
-            <div
-                id="result"
-                class="result-content"
-            >
-
-                <div class="result-placeholder">
-
-                    <div class="placeholder-icon">
-                        ?
-                    </div>
-
-                    <h3>
-                        No Prediction Yet
-                    </h3>
-
-                    <p>
-
-                        Submit the loan application to receive
-                        an AI-powered credit risk assessment.
-
-                    </p>
-
-                </div>
+                <p>
+                    Evaluate loan applications using a machine
+                    learning model trained for credit default risk.
+                </p>
 
             </div>
 
         </section>
 
 
-        <!-- ========================================================
-             MODEL STATISTICS - DAY 14
-        ======================================================== -->
 
-        <section class="stats-section">
+        <!-- =================================================
+             APPLICATION + RESULT
+        ================================================== -->
 
-            <h2>Model Statistics</h2>
+        <section class="main-grid">
+
+
+            <!-- =============================================
+                 LOAN APPLICATION
+            ============================================== -->
+
+            <div class="card application-card">
+
+                <div class="card-header">
+
+                    <div>
+
+                        <span class="section-label">
+                            APPLICATION
+                        </span>
+
+                        <h3>Loan Application</h3>
+
+                        <p>
+                            Enter applicant financial information.
+                        </p>
+
+                    </div>
+
+                </div>
+
+
+                <form id="predictionForm">
+
+
+                    <!-- =====================================
+                         LOAN DETAILS
+                    ====================================== -->
+
+                    <div class="form-section">
+
+                        <h4>Loan Details</h4>
+
+
+                        <div class="form-grid">
+
+
+                            <div class="form-group">
+
+                                <label for="loan_amnt">
+                                    Loan Amount
+                                </label>
+
+                                <input
+                                    type="number"
+                                    id="loan_amnt"
+                                    placeholder="25000"
+                                    min="1"
+                                    required
+                                >
+
+                            </div>
+
+
+                            <div class="form-group">
+
+                                <label for="term">
+                                    Term
+                                </label>
+
+                                <select id="term" required>
+
+                                    <option value="36 months">
+                                        36 months
+                                    </option>
+
+                                    <option value="60 months">
+                                        60 months
+                                    </option>
+
+                                </select>
+
+                            </div>
+
+
+                            <div class="form-group">
+
+                                <label for="int_rate">
+                                    Interest Rate (%)
+                                </label>
+
+                                <input
+                                    type="number"
+                                    id="int_rate"
+                                    step="0.01"
+                                    placeholder="12.50"
+                                    min="0"
+                                    required
+                                >
+
+                            </div>
+
+
+                            <div class="form-group">
+
+                                <label for="installment">
+                                    Monthly Installment
+                                </label>
+
+                                <input
+                                    type="number"
+                                    id="installment"
+                                    step="0.01"
+                                    placeholder="850"
+                                    min="0"
+                                    required
+                                >
+
+                            </div>
+
+
+                            <div class="form-group">
+
+                                <label for="grade">
+                                    Grade
+                                </label>
+
+                                <select id="grade" required>
+
+                                    <option value="A">A</option>
+                                    <option value="B">B</option>
+                                    <option value="C">C</option>
+                                    <option value="D">D</option>
+                                    <option value="E">E</option>
+                                    <option value="F">F</option>
+                                    <option value="G">G</option>
+
+                                </select>
+
+                            </div>
+
+
+                            <div class="form-group">
+
+                                <label for="sub_grade">
+                                    Sub Grade
+                                </label>
+
+                                <select id="sub_grade" required>
+
+                                    <option value="A1">A1</option>
+                                    <option value="A2">A2</option>
+                                    <option value="A3">A3</option>
+                                    <option value="A4">A4</option>
+                                    <option value="A5">A5</option>
+
+                                    <option value="B1">B1</option>
+                                    <option value="B2">B2</option>
+                                    <option value="B3">B3</option>
+                                    <option value="B4">B4</option>
+                                    <option value="B5">B5</option>
+
+                                    <option value="C1">C1</option>
+                                    <option value="C2">C2</option>
+                                    <option value="C3">C3</option>
+                                    <option value="C4">C4</option>
+                                    <option value="C5">C5</option>
+
+                                </select>
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+
+
+                    <!-- =====================================
+                         APPLICANT PROFILE
+                    ====================================== -->
+
+                    <div class="form-section">
+
+                        <h4>Applicant Profile</h4>
+
+
+                        <div class="form-grid">
+
+
+                            <div class="form-group">
+
+                                <label for="emp_length">
+                                    Employment Length
+                                </label>
+
+                                <select id="emp_length" required>
+
+                                    <option value="10+ years">
+                                        10+ years
+                                    </option>
+
+                                    <option value="9 years">
+                                        9 years
+                                    </option>
+
+                                    <option value="8 years">
+                                        8 years
+                                    </option>
+
+                                    <option value="7 years">
+                                        7 years
+                                    </option>
+
+                                    <option value="6 years">
+                                        6 years
+                                    </option>
+
+                                    <option value="5 years">
+                                        5 years
+                                    </option>
+
+                                    <option value="4 years">
+                                        4 years
+                                    </option>
+
+                                    <option value="3 years">
+                                        3 years
+                                    </option>
+
+                                    <option value="2 years">
+                                        2 years
+                                    </option>
+
+                                    <option value="1 year">
+                                        1 year
+                                    </option>
+
+                                    <option value="< 1 year">
+                                        &lt; 1 year
+                                    </option>
+
+                                </select>
+
+                            </div>
+
+
+                            <div class="form-group">
+
+                                <label for="home_ownership">
+                                    Home Ownership
+                                </label>
+
+                                <select id="home_ownership" required>
+
+                                    <option value="MORTGAGE">
+                                        Mortgage
+                                    </option>
+
+                                    <option value="RENT">
+                                        Rent
+                                    </option>
+
+                                    <option value="OWN">
+                                        Own
+                                    </option>
+
+                                    <option value="OTHER">
+                                        Other
+                                    </option>
+
+                                </select>
+
+                            </div>
+
+
+                            <div class="form-group">
+
+                                <label for="annual_inc">
+                                    Annual Income
+                                </label>
+
+                                <input
+                                    type="number"
+                                    id="annual_inc"
+                                    placeholder="60000"
+                                    min="0"
+                                    required
+                                >
+
+                            </div>
+
+
+                            <div class="form-group">
+
+                                <label for="verification_status">
+                                    Verification Status
+                                </label>
+
+                                <select
+                                    id="verification_status"
+                                    required
+                                >
+
+                                    <option value="Verified">
+                                        Verified
+                                    </option>
+
+                                    <option value="Source Verified">
+                                        Source Verified
+                                    </option>
+
+                                    <option value="Not Verified">
+                                        Not Verified
+                                    </option>
+
+                                </select>
+
+                            </div>
+
+
+                            <div class="form-group full-width">
+
+                                <label for="purpose">
+                                    Loan Purpose
+                                </label>
+
+                                <select id="purpose" required>
+
+                                    <option value="debt_consolidation">
+                                        Debt Consolidation
+                                    </option>
+
+                                    <option value="credit_card">
+                                        Credit Card
+                                    </option>
+
+                                    <option value="home_improvement">
+                                        Home Improvement
+                                    </option>
+
+                                    <option value="major_purchase">
+                                        Major Purchase
+                                    </option>
+
+                                    <option value="medical">
+                                        Medical
+                                    </option>
+
+                                    <option value="car">
+                                        Car
+                                    </option>
+
+                                    <option value="small_business">
+                                        Small Business
+                                    </option>
+
+                                    <option value="other">
+                                        Other
+                                    </option>
+
+                                </select>
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+
+
+                    <!-- =====================================
+                         CREDIT PROFILE
+                    ====================================== -->
+
+                    <div class="form-section">
+
+                        <h4>Credit Profile</h4>
+
+
+                        <div class="form-grid">
+
+
+                            <div class="form-group">
+
+                                <label for="dti">
+                                    Debt-to-Income Ratio
+                                </label>
+
+                                <input
+                                    type="number"
+                                    id="dti"
+                                    step="0.01"
+                                    placeholder="18.50"
+                                    min="0"
+                                    required
+                                >
+
+                            </div>
+
+
+                            <div class="form-group">
+
+                                <label for="delinq_2yrs">
+                                    Delinquencies (2 yrs)
+                                </label>
+
+                                <input
+                                    type="number"
+                                    id="delinq_2yrs"
+                                    placeholder="0"
+                                    min="0"
+                                    required
+                                >
+
+                            </div>
+
+
+                            <div class="form-group">
+
+                                <label for="open_acc">
+                                    Open Accounts
+                                </label>
+
+                                <input
+                                    type="number"
+                                    id="open_acc"
+                                    placeholder="8"
+                                    min="0"
+                                    required
+                                >
+
+                            </div>
+
+
+                            <div class="form-group">
+
+                                <label for="pub_rec">
+                                    Public Records
+                                </label>
+
+                                <input
+                                    type="number"
+                                    id="pub_rec"
+                                    placeholder="0"
+                                    min="0"
+                                    required
+                                >
+
+                            </div>
+
+
+                            <div class="form-group">
+
+                                <label for="revol_bal">
+                                    Revolving Balance
+                                </label>
+
+                                <input
+                                    type="number"
+                                    id="revol_bal"
+                                    placeholder="12000"
+                                    min="0"
+                                    required
+                                >
+
+                            </div>
+
+
+                            <div class="form-group">
+
+                                <label for="revol_util">
+                                    Revolving Utilization (%)
+                                </label>
+
+                                <input
+                                    type="number"
+                                    id="revol_util"
+                                    step="0.01"
+                                    placeholder="35.50"
+                                    min="0"
+                                    max="100"
+                                    required
+                                >
+
+                            </div>
+
+
+                            <div class="form-group">
+
+                                <label for="total_acc">
+                                    Total Accounts
+                                </label>
+
+                                <input
+                                    type="number"
+                                    id="total_acc"
+                                    placeholder="15"
+                                    min="0"
+                                    required
+                                >
+
+                            </div>
+
+
+                            <div class="form-group">
+
+                                <label for="application_type">
+                                    Application Type
+                                </label>
+
+                                <select
+                                    id="application_type"
+                                    required
+                                >
+
+                                    <option value="Individual">
+                                        Individual
+                                    </option>
+
+                                    <option value="Joint App">
+                                        Joint Application
+                                    </option>
+
+                                </select>
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+
+
+                    <!-- =====================================
+                         ACTIONS
+                    ====================================== -->
+
+                    <div class="form-actions">
+
+                        <button
+                            type="submit"
+                            id="predictButton"
+                            class="primary-button"
+                        >
+
+                            <span>
+                                Predict Credit Risk
+                            </span>
+
+                        </button>
+
+
+                        <button
+                            type="button"
+                            id="resetButton"
+                            class="secondary-button"
+                        >
+                            Reset
+                        </button>
+
+                    </div>
+
+                </form>
+
+            </div>
+
+
+
+            <!-- =============================================
+                 RISK ASSESSMENT
+            ============================================== -->
+
+            <aside class="card assessment-card">
+
+                <div class="card-header">
+
+                    <div>
+
+                        <span class="section-label">
+                            AI ASSESSMENT
+                        </span>
+
+                        <h3>Risk Assessment</h3>
+
+                    </div>
+
+                </div>
+
+
+                <div id="result">
+
+                    <div class="result-placeholder">
+
+                        <div class="placeholder-icon">
+                            ?
+                        </div>
+
+                        <h3>No Prediction Yet</h3>
+
+                        <p>
+                            Submit the loan application to receive
+                            an AI-powered credit risk assessment.
+                        </p>
+
+                    </div>
+
+                </div>
+
+            </aside>
+
+        </section>
+
+
+
+        <!-- =================================================
+             STATISTICS
+        ================================================== -->
+
+        <section class="card statistics-card">
+
+            <div class="section-heading">
+
+                <div>
+
+                    <span class="section-label">
+                        MODEL PERFORMANCE
+                    </span>
+
+                    <h3>Model Statistics</h3>
+
+                </div>
+
+
+                <button
+                    id="refreshStats"
+                    class="outline-button"
+                >
+                    Refresh Statistics
+                </button>
+
+            </div>
+
 
             <div class="stats-grid">
 
 
-                <!-- Total Predictions -->
-
                 <div class="stat-card">
 
-                    <h3>
+                    <span class="stat-label">
                         Total Predictions
-                    </h3>
+                    </span>
 
-                    <p id="totalPredictions">
+                    <strong id="totalPredictions">
                         0
-                    </p>
+                    </strong>
 
                 </div>
 
 
-                <!-- Low Risk -->
-
                 <div class="stat-card">
 
-                    <h3>
+                    <span class="stat-label">
                         Low Risk
-                    </h3>
+                    </span>
 
-                    <p id="lowRiskCount">
+                    <strong
+                        id="lowRisk"
+                        class="low-text"
+                    >
                         0
-                    </p>
+                    </strong>
 
                 </div>
 
 
-                <!-- High Risk -->
-
                 <div class="stat-card">
 
-                    <h3>
+                    <span class="stat-label">
                         High Risk
-                    </h3>
+                    </span>
 
-                    <p id="highRiskCount">
+                    <strong
+                        id="highRisk"
+                        class="high-text"
+                    >
                         0
-                    </p>
+                    </strong>
 
                 </div>
 
 
-                <!-- Average Risk -->
-
                 <div class="stat-card">
 
-                    <h3>
+                    <span class="stat-label">
                         Average Default Risk
-                    </h3>
+                    </span>
 
-                    <p id="averageRisk">
+                    <strong id="averageRisk">
                         0%
-                    </p>
+                    </strong>
 
                 </div>
 
 
-                <!-- High Risk Rate -->
-
                 <div class="stat-card">
 
-                    <h3>
+                    <span class="stat-label">
                         High Risk Rate
-                    </h3>
+                    </span>
 
-                    <p id="highRiskRate">
+                    <strong id="highRiskRate">
                         0%
-                    </p>
+                    </strong>
 
                 </div>
 
             </div>
 
 
-            <button
-                type="button"
-                id="refreshStats"
-                class="secondary-button"
-            >
-                Refresh Statistics
-            </button>
-
-
-            <p id="statsMessage"></p>
+            <p
+                id="statsMessage"
+                class="system-message"
+            ></p>
 
         </section>
 
 
-        <!-- ========================================================
+
+        <!-- =================================================
              PREDICTION HISTORY
-        ======================================================== -->
+        ================================================== -->
 
-        <section class="history-section">
+        <section class="card history-card">
 
-            <div class="history-header">
+            <div class="section-heading">
 
-                <h2>
-                    Prediction History
-                </h2>
+                <div>
+
+                    <span class="section-label">
+                        AUDIT LOG
+                    </span>
+
+                    <h3>Prediction History</h3>
+
+                    <p id="historyMessage">
+                        Loading prediction history...
+                    </p>
+
+                </div>
 
 
-                <button
-                    type="button"
-                    id="refreshHistory"
-                    class="secondary-button"
-                >
-                    Refresh History
-                </button>
+                <div class="history-actions">
+
+                    <button
+                        id="refreshHistory"
+                        class="outline-button"
+                    >
+                        Refresh History
+                    </button>
 
 
-                <button
-                    type="button"
-                    id="clearHistory"
-                    class="danger-button"
-                >
-                    Clear History
-                </button>
+                    <button
+                        id="clearHistory"
+                        class="danger-button"
+                    >
+                        Clear History
+                    </button>
+
+                </div>
 
             </div>
 
 
-            <div id="historyMessage">
+            <div class="table-wrapper">
 
-                Loading prediction history...
-
-            </div>
-
-
-            <div class="table-container">
-
-                <table id="historyTable">
+                <table>
 
                     <thead>
 
                         <tr>
 
-                            <th>
-                                Timestamp
-                            </th>
+                            <th>Timestamp</th>
 
-                            <th>
-                                Risk
-                            </th>
+                            <th>Risk</th>
 
-                            <th>
-                                Default Probability
-                            </th>
+                            <th>Default Probability</th>
 
-                            <th>
-                                Prediction
-                            </th>
+                            <th>Prediction</th>
 
                         </tr>
 
@@ -753,6 +873,7 @@
 
 
                     <tbody id="historyBody">
+
                     </tbody>
 
                 </table>
@@ -765,26 +886,23 @@
     </main>
 
 
-    <!-- ============================================================
+
+    <!-- =====================================================
          FOOTER
-    ============================================================ -->
+    ====================================================== -->
 
     <footer>
 
         <p>
-            Credit Risk Platform • Random Forest Model
+            CreditRisk AI
+            <span>•</span>
+            Machine Learning Credit Assessment
         </p>
 
     </footer>
 
 
-</div>
-
-
-<!-- JavaScript -->
-
-<script src="script.js"></script>
-
+    <script src="script.js"></script>
 
 </body>
 

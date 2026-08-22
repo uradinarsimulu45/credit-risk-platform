@@ -1,188 +1,255 @@
-// ============================================================
-// CREDIT RISK PLATFORM - FRONTEND JAVASCRIPT
-// Day 14
-// ============================================================
-
-
-// ============================================================
-// API CONFIGURATION
-// ============================================================
+// =========================================================
+// CREDITRISK AI — FRONTEND APPLICATION
+// Connects frontend with FastAPI + MySQL
+// =========================================================
 
 const API_BASE_URL = "http://127.0.0.1:8000";
 
 
-// ============================================================
+// =========================================================
 // DOM ELEMENTS
-// ============================================================
+// =========================================================
 
-const form = document.getElementById("predictionForm");
+const predictionForm = document.getElementById("predictionForm");
+const resetButton = document.getElementById("resetButton");
+const predictButton = document.getElementById("predictButton");
 
-const result = document.getElementById("result");
+const resultContainer = document.getElementById("result");
 
-const predictButton =
-    document.getElementById("predictButton");
+const totalPredictions = document.getElementById("totalPredictions");
+const lowRisk = document.getElementById("lowRisk");
+const highRisk = document.getElementById("highRisk");
+const averageRisk = document.getElementById("averageRisk");
+const highRiskRate = document.getElementById("highRiskRate");
 
-const resetButton =
-    document.getElementById("resetButton");
+const refreshStatsButton = document.getElementById("refreshStats");
+const statsMessage = document.getElementById("statsMessage");
+
+const refreshHistoryButton = document.getElementById("refreshHistory");
+const clearHistoryButton = document.getElementById("clearHistory");
+
+const historyBody = document.getElementById("historyBody");
+const historyMessage = document.getElementById("historyMessage");
 
 
-// ============================================================
-// HELPER FUNCTIONS
-// ============================================================
+// =========================================================
+// API HELPER
+// =========================================================
 
-function getNumber(id) {
+async function apiRequest(endpoint, options = {}) {
 
-    return Number(
-        document.getElementById(id).value
+    const response = await fetch(
+        `${API_BASE_URL}${endpoint}`,
+        {
+            ...options,
+
+            headers: {
+                "Content-Type": "application/json",
+                ...(options.headers || {})
+            }
+        }
     );
 
+
+    let data;
+
+    try {
+
+        data = await response.json();
+
+    } catch (error) {
+
+        throw new Error(
+            `Server returned an invalid response (${response.status})`
+        );
+
+    }
+
+
+    if (!response.ok) {
+
+        const message =
+            data.detail ||
+            data.message ||
+            `API request failed with status ${response.status}`;
+
+        throw new Error(message);
+
+    }
+
+
+    return data;
 }
 
 
-function getValue(id) {
+// =========================================================
+// FORMAT NUMBER
+// =========================================================
 
-    return document.getElementById(id).value;
+function formatPercentage(value) {
 
+    const number = Number(value);
+
+    if (!Number.isFinite(number)) {
+        return "0.00%";
+    }
+
+    return `${(number * 100).toFixed(2)}%`;
 }
 
 
-// ============================================================
-// BUILD PREDICTION REQUEST
-// ============================================================
+// =========================================================
+// FORMAT TIMESTAMP
+// =========================================================
 
-function buildRequestData() {
+function formatTimestamp(timestamp) {
 
-    return {
+    if (!timestamp) {
+        return "—";
+    }
 
-        loan_amnt:
-            getNumber("loan_amnt"),
 
-        term:
-            getValue("term"),
+    try {
 
-        int_rate:
-            getNumber("int_rate"),
+        const date = new Date(timestamp);
 
-        installment:
-            getNumber("installment"),
+        if (Number.isNaN(date.getTime())) {
+            return timestamp;
+        }
 
-        grade:
-            getValue("grade"),
 
-        sub_grade:
-            getValue("sub_grade"),
+        return date.toLocaleString(
+            "en-IN",
+            {
+                dateStyle: "medium",
+                timeStyle: "short"
+            }
+        );
 
-        emp_length:
-            getValue("emp_length"),
+    } catch (error) {
 
-        home_ownership:
-            getValue("home_ownership"),
+        return timestamp;
 
-        annual_inc:
-            getNumber("annual_inc"),
-
-        verification_status:
-            getValue("verification_status"),
-
-        purpose:
-            getValue("purpose"),
-
-        dti:
-            getNumber("dti"),
-
-        delinq_2yrs:
-            getNumber("delinq_2yrs"),
-
-        open_acc:
-            getNumber("open_acc"),
-
-        pub_rec:
-            getNumber("pub_rec"),
-
-        revol_bal:
-            getNumber("revol_bal"),
-
-        revol_util:
-            getNumber("revol_util"),
-
-        total_acc:
-            getNumber("total_acc"),
-
-        application_type:
-            getValue("application_type")
-
-    };
-
+    }
 }
 
 
-// ============================================================
-// SHOW LOADING
-// ============================================================
+// =========================================================
+// LOADING RESULT
+// =========================================================
 
-function showLoading() {
+function showResultLoading() {
 
-    result.innerHTML = `
+    resultContainer.innerHTML = `
 
         <div class="loading">
 
-            <h3>
-                Analyzing Application...
-            </h3>
+            <div class="spinner"></div>
 
-            <p>
-                Please wait while the AI model
-                evaluates the loan.
-            </p>
+            <span>
+                Analyzing credit risk...
+            </span>
 
         </div>
 
     `;
-
 }
 
 
-// ============================================================
-// SHOW PREDICTION RESULT
-// ============================================================
+// =========================================================
+// DISPLAY ERROR
+// =========================================================
 
-function showResult(data) {
+function showResultError(message) {
 
-    const probability =
-        (
-            Number(data.default_probability) * 100
-        ).toFixed(2);
+    resultContainer.innerHTML = `
+
+        <div class="error-message">
+
+            <strong>Prediction Error</strong>
+
+            <br>
+
+            <span>${escapeHTML(message)}</span>
+
+        </div>
+
+    `;
+}
+
+
+// =========================================================
+// ESCAPE HTML
+// =========================================================
+
+function escapeHTML(value) {
+
+    const div = document.createElement("div");
+
+    div.textContent = value ?? "";
+
+    return div.innerHTML;
+}
+
+
+// =========================================================
+// DISPLAY PREDICTION
+// =========================================================
+
+function displayPrediction(data) {
+
+    const prediction = Number(data.prediction);
+
+    const probability = Number(data.default_probability);
+
+    const risk =
+        data.risk ||
+        (prediction === 1 ? "High Risk" : "Low Risk");
+
+
+    const isHighRisk =
+        prediction === 1 ||
+        risk.toLowerCase().includes("high");
 
 
     const riskClass =
-        data.risk === "High Risk"
-            ? "high-risk"
-            : "low-risk";
+        isHighRisk ? "high" : "low";
 
 
-    result.innerHTML = `
+    const icon =
+        isHighRisk ? "!" : "✓";
 
-        <div class="risk-result">
+
+    resultContainer.innerHTML = `
+
+        <div class="risk-result ${riskClass}">
 
             <div class="risk-badge ${riskClass}">
 
-                ${data.risk}
+                <span>${icon}</span>
+
+                <span>
+                    ${escapeHTML(risk)}
+                </span>
 
             </div>
 
 
-            <div class="probability">
+            <div class="risk-percentage">
 
-                ${probability}%
+                ${formatPercentage(probability)}
 
             </div>
 
 
-            <div class="probability-label">
+            <div class="risk-caption">
 
                 Estimated Default Probability
 
             </div>
+
+
+            <div class="risk-divider"></div>
 
 
             <div class="prediction-value">
@@ -190,576 +257,306 @@ function showResult(data) {
                 Model Prediction:
 
                 <strong>
-                    ${data.prediction}
+                    ${prediction}
                 </strong>
 
             </div>
 
-        </div>
 
-    `;
+            ${
+                data.prediction_id !== undefined
+                    ? `
+                        <div class="prediction-id">
 
-}
+                            Prediction ID:
+                            #${escapeHTML(data.prediction_id)}
 
-
-// ============================================================
-// SHOW ERROR
-// ============================================================
-
-function showError(message) {
-
-    result.innerHTML = `
-
-        <div class="error-message">
-
-            <strong>
-                Prediction Error
-            </strong>
-
-            <p>
-                ${message}
-            </p>
+                        </div>
+                      `
+                    : ""
+            }
 
         </div>
 
     `;
-
 }
 
 
-// ============================================================
-// PREDICTION FORM
-// ============================================================
+// =========================================================
+// COLLECT FORM DATA
+// =========================================================
 
-if (form) {
+function getFormData() {
 
-    form.addEventListener(
-        "submit",
-        async function(event) {
+    return {
 
-            event.preventDefault();
+        loan_amnt:
+            Number(
+                document.getElementById("loan_amnt").value
+            ),
 
+        term:
+            document.getElementById("term").value,
 
-            predictButton.disabled = true;
+        int_rate:
+            Number(
+                document.getElementById("int_rate").value
+            ),
 
-            predictButton.textContent =
-                "Analyzing...";
+        installment:
+            Number(
+                document.getElementById("installment").value
+            ),
 
+        grade:
+            document.getElementById("grade").value,
 
-            showLoading();
+        sub_grade:
+            document.getElementById("sub_grade").value,
 
+        emp_length:
+            document.getElementById("emp_length").value,
 
-            const data =
-                buildRequestData();
+        home_ownership:
+            document.getElementById("home_ownership").value,
 
+        annual_inc:
+            Number(
+                document.getElementById("annual_inc").value
+            ),
 
-            try {
+        verification_status:
+            document.getElementById("verification_status").value,
 
-                const response =
-                    await fetch(
-                        `${API_BASE_URL}/predict`,
-                        {
-                            method: "POST",
+        purpose:
+            document.getElementById("purpose").value,
 
-                            headers: {
-                                "Content-Type":
-                                    "application/json"
-                            },
+        dti:
+            Number(
+                document.getElementById("dti").value
+            ),
 
-                            body:
-                                JSON.stringify(data)
-                        }
-                    );
+        delinq_2yrs:
+            Number(
+                document.getElementById("delinq_2yrs").value
+            ),
 
+        open_acc:
+            Number(
+                document.getElementById("open_acc").value
+            ),
 
-                const responseData =
-                    await response.json();
+        pub_rec:
+            Number(
+                document.getElementById("pub_rec").value
+            ),
 
+        revol_bal:
+            Number(
+                document.getElementById("revol_bal").value
+            ),
 
-                if (!response.ok) {
+        revol_util:
+            Number(
+                document.getElementById("revol_util").value
+            ),
 
-                    throw new Error(
-                        responseData.detail ||
-                        "Prediction request failed."
-                    );
+        total_acc:
+            Number(
+                document.getElementById("total_acc").value
+            ),
 
-                }
-
-
-                // Show prediction
-
-                showResult(responseData);
-
-
-                // Refresh history
-
-                loadPredictionHistory();
-
-
-                // Refresh statistics
-
-                loadStatistics();
-
-            }
-
-
-            catch (error) {
-
-                console.error(
-                    "Prediction error:",
-                    error
-                );
-
-
-                showError(
-                    error.message ||
-                    "Failed to fetch prediction."
-                );
-
-            }
+        application_type:
+            document.getElementById("application_type").value
+    };
+}
 
 
-            finally {
+// =========================================================
+// VALIDATE FORM
+// =========================================================
 
-                predictButton.disabled =
-                    false;
+function validateForm(data) {
 
+    for (const [key, value] of Object.entries(data)) {
 
-                predictButton.textContent =
-                    "Predict Credit Risk";
+        if (
+            value === "" ||
+            value === null ||
+            value === undefined
+        ) {
 
-            }
+            return `Please provide ${key.replaceAll("_", " ")}.`;
 
         }
-    );
-
-}
 
 
-// ============================================================
-// RESET FORM
-// ============================================================
+        if (
+            typeof value === "number" &&
+            !Number.isFinite(value)
+        ) {
 
-if (resetButton) {
-
-    resetButton.addEventListener(
-        "click",
-        function() {
-
-            form.reset();
-
-
-            result.innerHTML = `
-
-                <div class="result-placeholder">
-
-                    <div class="placeholder-icon">
-                        ?
-                    </div>
-
-                    <h3>
-                        No Prediction Yet
-                    </h3>
-
-                    <p>
-
-                        Submit the loan application
-                        to receive an AI-powered
-                        credit risk assessment.
-
-                    </p>
-
-                </div>
-
-            `;
+            return `Please enter a valid value for ${key.replaceAll("_", " ")}.`;
 
         }
-    );
 
+    }
+
+
+    return null;
 }
 
 
-// ============================================================
-// PREDICTION HISTORY
-// ============================================================
+// =========================================================
+// PREDICTION
+// =========================================================
 
-async function loadPredictionHistory() {
+async function predictCreditRisk(event) {
 
-    const historyMessage =
-        document.getElementById(
-            "historyMessage"
-        );
+    event.preventDefault();
 
 
-    const historyBody =
-        document.getElementById(
-            "historyBody"
-        );
+    const formData = getFormData();
 
 
-    if (!historyBody) {
+    const validationError =
+        validateForm(formData);
+
+
+    if (validationError) {
+
+        showResultError(validationError);
 
         return;
 
     }
 
 
+    predictButton.disabled = true;
+
+    predictButton.innerHTML = `
+        <span>Analyzing...</span>
+    `;
+
+
+    showResultLoading();
+
+
     try {
 
-        const response =
-            await fetch(
-                `${API_BASE_URL}/history`
-            );
-
-
-        if (!response.ok) {
-
-            throw new Error(
-                "Failed to load history"
-            );
-
-        }
-
-
         const data =
-            await response.json();
-
-
-        historyBody.innerHTML = "";
-
-
-        // No predictions
-
-        if (
-            !data.history ||
-            data.history.length === 0
-        ) {
-
-            if (historyMessage) {
-
-                historyMessage.textContent =
-                    "No predictions available.";
-
-            }
-
-            return;
-
-        }
-
-
-        if (historyMessage) {
-
-            historyMessage.textContent =
-                `${data.count} prediction(s) recorded.`;
-
-        }
-
-
-        // Display newest first
-
-        data.history
-            .slice()
-            .reverse()
-            .forEach(
-                record => {
-
-                    const row =
-                        document.createElement(
-                            "tr"
-                        );
-
-
-                    const probability =
-                        (
-                            Number(
-                                record.default_probability
-                            ) * 100
-                        ).toFixed(2);
-
-
-                    const riskClass =
-                        record.risk === "High Risk"
-                            ? "high-risk"
-                            : "low-risk";
-
-
-                    row.innerHTML = `
-
-                        <td>
-                            ${record.timestamp}
-                        </td>
-
-
-                        <td>
-
-                            <span
-                                class="risk-badge ${riskClass}"
-                            >
-                                ${record.risk}
-                            </span>
-
-                        </td>
-
-
-                        <td>
-                            ${probability}%
-                        </td>
-
-
-                        <td>
-                            ${record.prediction}
-                        </td>
-
-                    `;
-
-
-                    historyBody.appendChild(
-                        row
-                    );
-
+            await apiRequest(
+                "/predict",
+                {
+                    method: "POST",
+                    body: JSON.stringify(formData)
                 }
             );
 
-    }
+
+        displayPrediction(data);
 
 
-    catch (error) {
+        // Refresh MySQL-backed dashboard
+        await Promise.all([
+            loadStatistics(),
+            loadHistory()
+        ]);
+
+
+    } catch (error) {
 
         console.error(
-            "History error:",
+            "Prediction error:",
             error
         );
 
 
-        if (historyMessage) {
+        showResultError(
+            error.message ||
+            "Unable to connect to the prediction API."
+        );
 
-            historyMessage.textContent =
-                "Failed to load prediction history.";
+    } finally {
 
-        }
+        predictButton.disabled = false;
+
+        predictButton.innerHTML = `
+            <span>Predict Credit Risk</span>
+        `;
 
     }
 
 }
 
 
-// ============================================================
-// REFRESH HISTORY BUTTON
-// ============================================================
-
-const refreshHistory =
-    document.getElementById(
-        "refreshHistory"
-    );
-
-
-if (refreshHistory) {
-
-    refreshHistory.addEventListener(
-        "click",
-        loadPredictionHistory
-    );
-
-}
-
-
-// ============================================================
-// CLEAR HISTORY
-// ============================================================
-
-const clearHistory =
-    document.getElementById(
-        "clearHistory"
-    );
-
-
-if (clearHistory) {
-
-    clearHistory.addEventListener(
-        "click",
-        async function() {
-
-            const confirmed =
-                confirm(
-                    "Are you sure you want to clear prediction history?"
-                );
-
-
-            if (!confirmed) {
-
-                return;
-
-            }
-
-
-            try {
-
-                const response =
-                    await fetch(
-                        `${API_BASE_URL}/history`,
-                        {
-                            method: "DELETE"
-                        }
-                    );
-
-
-                if (!response.ok) {
-
-                    throw new Error(
-                        "Failed to clear history"
-                    );
-
-                }
-
-
-                await loadPredictionHistory();
-
-
-                await loadStatistics();
-
-
-                alert(
-                    "Prediction history cleared successfully."
-                );
-
-            }
-
-
-            catch (error) {
-
-                console.error(
-                    "Clear history error:",
-                    error
-                );
-
-
-                alert(
-                    "Failed to clear prediction history."
-                );
-
-            }
-
-        }
-    );
-
-}
-
-
-// ============================================================
-// MODEL STATISTICS
-// ============================================================
+// =========================================================
+// LOAD STATISTICS
+// =========================================================
 
 async function loadStatistics() {
 
-    const totalPredictions =
-        document.getElementById(
-            "totalPredictions"
-        );
-
-
-    const lowRiskCount =
-        document.getElementById(
-            "lowRiskCount"
-        );
-
-
-    const highRiskCount =
-        document.getElementById(
-            "highRiskCount"
-        );
-
-
-    const averageRisk =
-        document.getElementById(
-            "averageRisk"
-        );
-
-
-    const highRiskRate =
-        document.getElementById(
-            "highRiskRate"
-        );
-
-
-    const statsMessage =
-        document.getElementById(
-            "statsMessage"
-        );
-
-
     try {
 
-        const response =
-            await fetch(
-                `${API_BASE_URL}/stats`
-            );
-
-
-        if (!response.ok) {
-
-            throw new Error(
-                "Failed to load statistics"
-            );
-
-        }
-
-
         const data =
-            await response.json();
+            await apiRequest("/stats");
 
 
-        // Total predictions
+        const total =
+            Number(data.total_predictions ?? 0);
 
-        if (totalPredictions) {
+        const low =
+            Number(data.low_risk ?? 0);
 
-            totalPredictions.textContent =
-                data.total_predictions;
+        const high =
+            Number(data.high_risk ?? 0);
 
-        }
+        const average =
+            Number(
+                data.average_default_probability ?? 0
+            );
 
-
-        // Low risk
-
-        if (lowRiskCount) {
-
-            lowRiskCount.textContent =
-                data.low_risk;
-
-        }
-
-
-        // High risk
-
-        if (highRiskCount) {
-
-            highRiskCount.textContent =
-                data.high_risk;
-
-        }
+        const highRate =
+            Number(
+                data.high_risk_percentage ?? 0
+            );
 
 
-        // Average default probability
-
-        if (averageRisk) {
-
-            averageRisk.textContent =
-                (
-                    Number(
-                        data.average_default_probability
-                    ) * 100
-                ).toFixed(2) + "%";
-
-        }
+        totalPredictions.textContent =
+            total.toLocaleString();
 
 
-        // High risk percentage
+        lowRisk.textContent =
+            low.toLocaleString();
 
-        if (highRiskRate) {
+
+        highRisk.textContent =
+            high.toLocaleString();
+
+
+        /*
+         * Your API currently returns average probability
+         * as a decimal such as 0.3579.
+         */
+        averageRisk.textContent =
+            formatPercentage(average);
+
+
+        /*
+         * high_risk_percentage may be returned either as
+         * 11.11 or 0.1111 depending on backend implementation.
+         *
+         * Detect the format automatically.
+         */
+        if (highRate <= 1) {
 
             highRiskRate.textContent =
-                Number(
-                    data.high_risk_percentage
-                ).toFixed(2) + "%";
+                formatPercentage(highRate);
+
+        } else {
+
+            highRiskRate.textContent =
+                `${highRate.toFixed(2)}%`;
 
         }
 
@@ -771,10 +568,7 @@ async function loadStatistics() {
 
         }
 
-    }
-
-
-    catch (error) {
+    } catch (error) {
 
         console.error(
             "Statistics error:",
@@ -785,7 +579,10 @@ async function loadStatistics() {
         if (statsMessage) {
 
             statsMessage.textContent =
-                "Failed to load statistics.";
+                `Unable to load statistics: ${error.message}`;
+
+            statsMessage.style.color =
+                "#dc2626";
 
         }
 
@@ -794,37 +591,534 @@ async function loadStatistics() {
 }
 
 
-// ============================================================
-// REFRESH STATISTICS BUTTON
-// ============================================================
+// =========================================================
+// LOAD HISTORY
+// =========================================================
 
-const refreshStats =
-    document.getElementById(
-        "refreshStats"
-    );
+async function loadHistory() {
+
+    try {
+
+        if (historyMessage) {
+
+            historyMessage.textContent =
+                "Loading prediction history...";
+
+        }
 
 
-if (refreshStats) {
+        const data =
+            await apiRequest("/history");
 
-    refreshStats.addEventListener(
-        "click",
-        loadStatistics
+
+        /*
+         * Support multiple possible backend response formats:
+         *
+         * 1. [ {...}, {...} ]
+         *
+         * 2. { "history": [...] }
+         *
+         * 3. { "predictions": [...] }
+         */
+
+        let records;
+
+
+        if (Array.isArray(data)) {
+
+            records = data;
+
+        } else if (Array.isArray(data.history)) {
+
+            records = data.history;
+
+        } else if (Array.isArray(data.predictions)) {
+
+            records = data.predictions;
+
+        } else {
+
+            records = [];
+
+        }
+
+
+        renderHistory(records);
+
+
+    } catch (error) {
+
+        console.error(
+            "History error:",
+            error
+        );
+
+
+        historyBody.innerHTML = `
+
+            <tr>
+
+                <td
+                    colspan="4"
+                    class="empty-history"
+                >
+
+                    Unable to load prediction history.
+
+                </td>
+
+            </tr>
+
+        `;
+
+
+        if (historyMessage) {
+
+            historyMessage.textContent =
+                `Error: ${error.message}`;
+
+        }
+
+    }
+
+}
+
+
+// =========================================================
+// RENDER HISTORY
+// =========================================================
+
+function renderHistory(records) {
+
+    historyBody.innerHTML = "";
+
+
+    if (!records || records.length === 0) {
+
+        historyBody.innerHTML = `
+
+            <tr>
+
+                <td
+                    colspan="4"
+                    class="empty-history"
+                >
+
+                    No prediction history available.
+
+                </td>
+
+            </tr>
+
+        `;
+
+
+        if (historyMessage) {
+
+            historyMessage.textContent =
+                "0 predictions recorded.";
+
+        }
+
+        return;
+
+    }
+
+
+    /*
+     * Newest records first.
+     */
+    const sortedRecords =
+        [...records].sort(
+            (a, b) => {
+
+                const idA =
+                    Number(a.id ?? 0);
+
+                const idB =
+                    Number(b.id ?? 0);
+
+                return idB - idA;
+
+            }
+        );
+
+
+    sortedRecords.forEach(record => {
+
+        const prediction =
+            Number(record.prediction);
+
+
+        const probability =
+            Number(
+                record.default_probability ?? 0
+            );
+
+
+        const risk =
+            record.risk ||
+            (prediction === 1
+                ? "High Risk"
+                : "Low Risk");
+
+
+        const isHigh =
+            prediction === 1 ||
+            risk.toLowerCase().includes("high");
+
+
+        const row =
+            document.createElement("tr");
+
+
+        const timestamp =
+            record.timestamp ||
+            record.created_at ||
+            record.time;
+
+
+        row.innerHTML = `
+
+            <td>
+                ${escapeHTML(
+                    formatTimestamp(timestamp)
+                )}
+            </td>
+
+
+            <td>
+
+                <span
+                    class="${
+                        isHigh
+                            ? "history-high"
+                            : "history-low"
+                    }"
+                >
+
+                    ${escapeHTML(risk)}
+
+                </span>
+
+            </td>
+
+
+            <td>
+
+                ${formatPercentage(probability)}
+
+            </td>
+
+
+            <td>
+
+                <strong>
+                    ${prediction}
+                </strong>
+
+            </td>
+
+        `;
+
+
+        historyBody.appendChild(row);
+
+    });
+
+
+    if (historyMessage) {
+
+        historyMessage.textContent =
+            `${sortedRecords.length} prediction(s) recorded.`;
+
+    }
+
+}
+
+
+// =========================================================
+// RESET FORM
+// =========================================================
+
+function resetForm() {
+
+    predictionForm.reset();
+
+
+    resultContainer.innerHTML = `
+
+        <div class="result-placeholder">
+
+            <div class="placeholder-icon">
+                ?
+            </div>
+
+            <h3>No Prediction Yet</h3>
+
+            <p>
+                Submit the loan application to receive
+                an AI-powered credit risk assessment.
+            </p>
+
+        </div>
+
+    `;
+
+}
+
+
+// =========================================================
+// CLEAR HISTORY
+// =========================================================
+
+async function clearPredictionHistory() {
+
+    const confirmed =
+        window.confirm(
+            "Are you sure you want to delete all prediction history?"
+        );
+
+
+    if (!confirmed) {
+        return;
+    }
+
+
+    try {
+
+        clearHistoryButton.disabled = true;
+
+        clearHistoryButton.textContent =
+            "Clearing...";
+
+
+        await apiRequest(
+            "/history",
+            {
+                method: "DELETE"
+            }
+        );
+
+
+        await Promise.all([
+            loadStatistics(),
+            loadHistory()
+        ]);
+
+
+        if (statsMessage) {
+
+            statsMessage.textContent =
+                "Prediction history cleared successfully.";
+
+            statsMessage.style.color =
+                "#16a34a";
+
+        }
+
+
+    } catch (error) {
+
+        console.error(
+            "Clear history error:",
+            error
+        );
+
+
+        if (statsMessage) {
+
+            statsMessage.textContent =
+                `Unable to clear history: ${error.message}`;
+
+            statsMessage.style.color =
+                "#dc2626";
+
+        }
+
+    } finally {
+
+        clearHistoryButton.disabled = false;
+
+        clearHistoryButton.textContent =
+            "Clear History";
+
+    }
+
+}
+
+
+// =========================================================
+// API HEALTH CHECK
+// =========================================================
+
+async function checkAPIHealth() {
+
+    const statusContainer =
+        document.querySelector(".api-status");
+
+
+    if (!statusContainer) {
+        return;
+    }
+
+
+    try {
+
+        const data =
+            await apiRequest("/");
+
+
+        if (
+            data &&
+            (
+                data.status === "healthy" ||
+                data.message
+            )
+        ) {
+
+            statusContainer.innerHTML = `
+
+                <span class="status-dot"></span>
+
+                <span>API Online</span>
+
+            `;
+
+        }
+
+    } catch (error) {
+
+        console.error(
+            "API health check failed:",
+            error
+        );
+
+
+        statusContainer.innerHTML = `
+
+            <span
+                class="status-dot"
+                style="background:#dc2626; box-shadow:0 0 0 4px rgba(220,38,38,.12);"
+            ></span>
+
+            <span style="color:#b91c1c;">
+                API Offline
+            </span>
+
+        `;
+
+    }
+
+}
+
+
+// =========================================================
+// EVENT LISTENERS
+// =========================================================
+
+if (predictionForm) {
+
+    predictionForm.addEventListener(
+        "submit",
+        predictCreditRisk
     );
 
 }
 
 
-// ============================================================
-// PAGE LOAD
-// ============================================================
+if (resetButton) {
+
+    resetButton.addEventListener(
+        "click",
+        resetForm
+    );
+
+}
+
+
+if (refreshStatsButton) {
+
+    refreshStatsButton.addEventListener(
+        "click",
+        async () => {
+
+            refreshStatsButton.disabled = true;
+
+            refreshStatsButton.textContent =
+                "Refreshing...";
+
+
+            await loadStatistics();
+
+
+            refreshStatsButton.disabled = false;
+
+            refreshStatsButton.textContent =
+                "Refresh Statistics";
+
+        }
+    );
+
+}
+
+
+if (refreshHistoryButton) {
+
+    refreshHistoryButton.addEventListener(
+        "click",
+        async () => {
+
+            refreshHistoryButton.disabled = true;
+
+            refreshHistoryButton.textContent =
+                "Refreshing...";
+
+
+            await loadHistory();
+
+
+            refreshHistoryButton.disabled = false;
+
+            refreshHistoryButton.textContent =
+                "Refresh History";
+
+        }
+    );
+
+}
+
+
+if (clearHistoryButton) {
+
+    clearHistoryButton.addEventListener(
+        "click",
+        clearPredictionHistory
+    );
+
+}
+
+
+// =========================================================
+// INITIALIZE APPLICATION
+// =========================================================
 
 document.addEventListener(
     "DOMContentLoaded",
-    function() {
+    async () => {
 
-        loadPredictionHistory();
+        console.log(
+            "CreditRisk AI frontend initialized."
+        );
 
-        loadStatistics();
+
+        await checkAPIHealth();
+
+
+        await Promise.all([
+            loadStatistics(),
+            loadHistory()
+        ]);
 
     }
 );
