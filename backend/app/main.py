@@ -1,29 +1,9 @@
 """
 Credit Risk Platform
-Day 16 - Production-Style FastAPI Backend
-
-Features:
-- Loan default risk prediction
-- Random Forest model
-- Feature engineering
-- Prediction history
-- Prediction statistics
-- Health check
-- API version information
-- Model information
-- CORS support
-- Input validation
+Day 18 - FastAPI + ML Model + MySQL
 """
-from sqlalchemy.orm import Session
-from fastapi import Depends
 
-from .database import Base, engine, get_db
-from .models import LoanApplication as LoanApplicationDB
-from .models import Prediction
-
-import json
 import os
-from datetime import datetime
 
 import joblib
 import pandas as pd
@@ -32,16 +12,19 @@ from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel, Field
 
+from backend.app.database import (
+    save_prediction,
+    get_prediction_history,
+    clear_prediction_history,
+    get_prediction_stats,
+)
+
 
 # ============================================================
 # Configuration
 # ============================================================
 
 MODEL_PATH = "ml/models/best_credit_risk_model.joblib"
-
-HISTORY_PATH = "backend/app/prediction_history.json"
-
-API_VERSION = "1.4.0"
 
 
 # ============================================================
@@ -52,15 +35,14 @@ app = FastAPI(
     title="Credit Risk Prediction API",
     description=(
         "AI-powered credit risk prediction using "
-        "a Random Forest model."
+        "a Random Forest model with MySQL prediction history."
     ),
-    version=API_VERSION,
+    version="1.4.0",
 )
-Base.metadata.create_all(bind=engine)
 
 
 # ============================================================
-# CORS
+# CORS Configuration
 # ============================================================
 
 app.add_middleware(
@@ -73,7 +55,7 @@ app.add_middleware(
 
 
 # ============================================================
-# Load Model
+# Load Machine Learning Model
 # ============================================================
 
 if not os.path.exists(MODEL_PATH):
@@ -84,38 +66,6 @@ if not os.path.exists(MODEL_PATH):
 
 
 model = joblib.load(MODEL_PATH)
-
-
-# ============================================================
-# Prediction History File
-# ============================================================
-
-def ensure_history_file():
-
-    directory = os.path.dirname(HISTORY_PATH)
-
-    if directory:
-        os.makedirs(
-            directory,
-            exist_ok=True
-        )
-
-    if not os.path.exists(HISTORY_PATH):
-
-        with open(
-            HISTORY_PATH,
-            "w",
-            encoding="utf-8"
-        ) as file:
-
-            json.dump(
-                [],
-                file,
-                indent=4
-            )
-
-
-ensure_history_file()
 
 
 # ============================================================
@@ -130,13 +80,12 @@ class LoanApplication(BaseModel):
     )
 
     term: str = Field(
-        min_length=1,
         description="Loan term, e.g. 36 months"
     )
 
     int_rate: float = Field(
         gt=0,
-        description="Interest rate percentage"
+        description="Interest rate"
     )
 
     installment: float = Field(
@@ -156,30 +105,18 @@ class LoanApplication(BaseModel):
         description="Loan sub-grade, e.g. B3"
     )
 
-    emp_length: str = Field(
-        min_length=1,
-        description="Employment length"
-    )
+    emp_length: str
 
-    home_ownership: str = Field(
-        min_length=1,
-        description="Home ownership"
-    )
+    home_ownership: str
 
     annual_inc: float = Field(
         ge=0,
         description="Annual income"
     )
 
-    verification_status: str = Field(
-        min_length=1,
-        description="Income verification status"
-    )
+    verification_status: str
 
-    purpose: str = Field(
-        min_length=1,
-        description="Loan purpose"
-    )
+    purpose: str
 
     dti: float = Field(
         ge=0,
@@ -187,23 +124,19 @@ class LoanApplication(BaseModel):
     )
 
     delinq_2yrs: float = Field(
-        ge=0,
-        description="Delinquencies during last 2 years"
+        ge=0
     )
 
     open_acc: float = Field(
-        ge=0,
-        description="Number of open accounts"
+        ge=0
     )
 
     pub_rec: float = Field(
-        ge=0,
-        description="Public records"
+        ge=0
     )
 
     revol_bal: float = Field(
-        ge=0,
-        description="Revolving balance"
+        ge=0
     )
 
     revol_util: float = Field(
@@ -213,14 +146,10 @@ class LoanApplication(BaseModel):
     )
 
     total_acc: float = Field(
-        ge=0,
-        description="Total accounts"
+        ge=0
     )
 
-    application_type: str = Field(
-        min_length=1,
-        description="Application type"
-    )
+    application_type: str
 
 
 # ============================================================
@@ -233,7 +162,9 @@ def root():
     return {
         "message": "Credit Risk Prediction API is running",
         "status": "healthy",
-        "version": API_VERSION
+        "version": "1.4.0",
+        "database": "MySQL",
+        "model": "Random Forest",
     }
 
 
@@ -244,35 +175,11 @@ def root():
 @app.get("/health")
 def health():
 
-    model_exists = os.path.exists(
-        MODEL_PATH
-    )
-
     return {
-        "status": (
-            "healthy"
-            if model_exists
-            else "unhealthy"
-        ),
-        "model_loaded": model_exists,
+        "status": "healthy",
+        "model_loaded": True,
         "model_type": "Random Forest",
-        "api_version": API_VERSION
-    }
-
-
-# ============================================================
-# API Version
-# ============================================================
-
-@app.get("/api/version")
-def api_version():
-
-    return {
-        "name": "Credit Risk Prediction API",
-        "version": API_VERSION,
-        "status": "stable",
-        "model": "Random Forest",
-        "purpose": "Loan default risk assessment"
+        "database": "MySQL",
     }
 
 
@@ -285,21 +192,12 @@ def model_info():
 
     return {
         "model": "Random Forest",
-        "task": "Binary Classification",
         "purpose": "Credit Risk Prediction",
-
-        "metrics": {
-            "roc_auc": 0.7096,
-            "accuracy": 0.6385,
-            "precision": 0.3284,
-            "recall": 0.6721,
-            "f1_score": 0.4412
-        },
-
-        "classes": {
-            "0": "Low Risk",
-            "1": "High Risk"
-        }
+        "roc_auc": 0.7096,
+        "accuracy": 0.6385,
+        "precision": 0.3284,
+        "recall": 0.6721,
+        "f1_score": 0.4412,
     }
 
 
@@ -311,14 +209,10 @@ def prepare_features(
     application: LoanApplication
 ):
 
-    # --------------------------------------------------------
-    # Convert request to DataFrame
-    # --------------------------------------------------------
+    # Convert request into DataFrame
 
     data = pd.DataFrame(
-        [
-            application.model_dump()
-        ]
+        [application.model_dump()]
     )
 
 
@@ -332,9 +226,7 @@ def prepare_features(
     data["term"] = (
         data["term"]
         .astype(str)
-        .str.extract(
-            r"(\d+)"
-        )[0]
+        .str.extract(r"(\d+)")
         .astype(float)
     )
 
@@ -365,8 +257,7 @@ def prepare_features(
 
         "9 years": 9,
 
-        "10+ years": 10
-
+        "10+ years": 10,
     }
 
 
@@ -374,17 +265,6 @@ def prepare_features(
         data["emp_length"]
         .map(emp_map)
     )
-
-
-    # --------------------------------------------------------
-    # Validate employment length
-    # --------------------------------------------------------
-
-    if data["emp_length"].isna().any():
-
-        raise ValueError(
-            "Invalid employment length value."
-        )
 
 
     # --------------------------------------------------------
@@ -404,7 +284,7 @@ def prepare_features(
 
 
     # --------------------------------------------------------
-    # INCOME
+    # LOAN TO INCOME
     # --------------------------------------------------------
 
     annual_income = (
@@ -415,10 +295,6 @@ def prepare_features(
         )
     )
 
-
-    # --------------------------------------------------------
-    # LOAN TO INCOME
-    # --------------------------------------------------------
 
     data["loan_to_income"] = (
         data["loan_amnt"]
@@ -447,87 +323,7 @@ def prepare_features(
     )
 
 
-    # --------------------------------------------------------
-    # Replace invalid infinite values
-    # --------------------------------------------------------
-
-    data = data.replace(
-        [float("inf"), float("-inf")],
-        float("nan")
-    )
-
-
     return data
-
-
-# ============================================================
-# Save Prediction History
-# ============================================================
-
-def save_prediction_history(
-    prediction: int,
-    risk: str,
-    probability: float
-):
-
-    ensure_history_file()
-
-
-    try:
-
-        with open(
-            HISTORY_PATH,
-            "r",
-            encoding="utf-8"
-        ) as file:
-
-            history = json.load(file)
-
-
-    except (
-        json.JSONDecodeError,
-        FileNotFoundError
-    ):
-
-        history = []
-
-
-    record = {
-
-        "timestamp":
-            datetime.now().isoformat(
-                timespec="seconds"
-            ),
-
-        "prediction":
-            int(prediction),
-
-        "risk":
-            risk,
-
-        "default_probability":
-            round(
-                float(probability),
-                4
-            )
-
-    }
-
-
-    history.append(record)
-
-
-    with open(
-        HISTORY_PATH,
-        "w",
-        encoding="utf-8"
-    ) as file:
-
-        json.dump(
-            history,
-            file,
-            indent=4
-        )
 
 
 # ============================================================
@@ -542,7 +338,7 @@ def predict(
     try:
 
         # ----------------------------------------------------
-        # Prepare features
+        # Prepare Features
         # ----------------------------------------------------
 
         data = prepare_features(
@@ -551,7 +347,7 @@ def predict(
 
 
         # ----------------------------------------------------
-        # Prediction
+        # Model Prediction
         # ----------------------------------------------------
 
         prediction = model.predict(
@@ -559,35 +355,12 @@ def predict(
         )[0]
 
 
-        prediction = int(
-            prediction
-        )
-
-
         # ----------------------------------------------------
-        # Probability
+        # Default Probability
         # ----------------------------------------------------
 
-        probabilities = (
-            model.predict_proba(data)[0]
-        )
-
-
-        probability = float(
-            probabilities[1]
-        )
-
-
-        # ----------------------------------------------------
-        # Protect probability range
-        # ----------------------------------------------------
-
-        probability = max(
-            0.0,
-            min(
-                1.0,
-                probability
-            )
+        probability = (
+            model.predict_proba(data)[0][1]
         )
 
 
@@ -605,47 +378,55 @@ def predict(
 
 
         # ----------------------------------------------------
-        # Save prediction
+        # Save Prediction to MySQL
         # ----------------------------------------------------
 
-        save_prediction_history(
-            prediction,
-            risk,
-            probability
+        prediction_id = save_prediction(
+
+            prediction=int(
+                prediction
+            ),
+
+            risk=risk,
+
+            default_probability=float(
+                probability
+            ),
         )
 
 
         # ----------------------------------------------------
-        # Response
+        # API Response
         # ----------------------------------------------------
 
         return {
 
-            "prediction":
-                prediction,
+            "prediction": int(
+                prediction
+            ),
 
-            "risk":
-                risk,
+            "risk": risk,
 
-            "default_probability":
-                round(
-                    probability,
-                    4
-                ),
+            "default_probability": round(
+                float(probability),
+                4
+            ),
 
-            "default_probability_percent":
-                round(
-                    probability * 100,
-                    2
-                )
+            "prediction_id": prediction_id,
 
+            "message": (
+                "Prediction generated and "
+                "saved to MySQL successfully."
+            ),
         }
 
 
     except Exception as error:
 
         raise HTTPException(
+
             status_code=500,
+
             detail=str(error)
         )
 
@@ -655,39 +436,31 @@ def predict(
 # ============================================================
 
 @app.get("/history")
-def get_history():
-
-    ensure_history_file()
-
+def history():
 
     try:
 
-        with open(
-            HISTORY_PATH,
-            "r",
-            encoding="utf-8"
-        ) as file:
-
-            history = json.load(file)
+        records = (
+            get_prediction_history()
+        )
 
 
-    except (
-        json.JSONDecodeError,
-        FileNotFoundError
-    ):
+        return {
 
-        history = []
+            "count": len(records),
+
+            "history": records,
+        }
 
 
-    return {
+    except Exception as error:
 
-        "count":
-            len(history),
+        raise HTTPException(
 
-        "history":
-            history
+            status_code=500,
 
-    }
+            detail=str(error)
+        )
 
 
 # ============================================================
@@ -697,31 +470,32 @@ def get_history():
 @app.delete("/history")
 def clear_history():
 
-    ensure_history_file()
+    try:
 
-
-    with open(
-        HISTORY_PATH,
-        "w",
-        encoding="utf-8"
-    ) as file:
-
-        json.dump(
-            [],
-            file,
-            indent=4
+        deleted_records = (
+            clear_prediction_history()
         )
 
 
-    return {
+        return {
 
-        "message":
-            "Prediction history cleared successfully",
+            "message": (
+                "Prediction history "
+                "cleared successfully."
+            ),
 
-        "count":
-            0
+            "deleted_records": deleted_records,
+        }
 
-    }
+
+    except Exception as error:
+
+        raise HTTPException(
+
+            status_code=500,
+
+            detail=str(error)
+        )
 
 
 # ============================================================
@@ -729,125 +503,18 @@ def clear_history():
 # ============================================================
 
 @app.get("/stats")
-def get_statistics():
-
-    ensure_history_file()
-
+def stats():
 
     try:
 
-        with open(
-            HISTORY_PATH,
-            "r",
-            encoding="utf-8"
-        ) as file:
-
-            history = json.load(file)
+        return get_prediction_stats()
 
 
-    except (
-        json.JSONDecodeError,
-        FileNotFoundError
-    ):
+    except Exception as error:
 
-        history = []
+        raise HTTPException(
 
+            status_code=500,
 
-    # --------------------------------------------------------
-    # Empty history
-    # --------------------------------------------------------
-
-    if not history:
-
-        return {
-
-            "total_predictions":
-                0,
-
-            "low_risk":
-                0,
-
-            "high_risk":
-                0,
-
-            "average_default_probability":
-                0,
-
-            "high_risk_percentage":
-                0
-
-        }
-
-
-    # --------------------------------------------------------
-    # Calculate statistics
-    # --------------------------------------------------------
-
-    total_predictions = len(
-        history
-    )
-
-
-    high_risk = sum(
-        1
-        for item in history
-        if item.get("prediction") == 1
-    )
-
-
-    low_risk = (
-        total_predictions
-        - high_risk
-    )
-
-
-    probabilities = [
-
-        float(
-            item.get(
-                "default_probability",
-                0
-            )
+            detail=str(error)
         )
-
-        for item in history
-
-    ]
-
-
-    average_probability = (
-        sum(probabilities)
-        / len(probabilities)
-    )
-
-
-    high_risk_percentage = (
-        high_risk
-        / total_predictions
-    ) * 100
-
-
-    return {
-
-        "total_predictions":
-            total_predictions,
-
-        "low_risk":
-            low_risk,
-
-        "high_risk":
-            high_risk,
-
-        "average_default_probability":
-            round(
-                average_probability,
-                4
-            ),
-
-        "high_risk_percentage":
-            round(
-                high_risk_percentage,
-                2
-            )
-
-    }
