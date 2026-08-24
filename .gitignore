@@ -100,3 +100,5 @@ dist/
 *.swo
 ```
 backend/app/prediction_history.json
+
+prediction_history.db
