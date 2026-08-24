@@ -1,674 +1,573 @@
-\# Credit Risk Platform
+# 📊 AI-Powered Credit Risk Platform
 
+<p align="center">
+  <strong>Machine Learning Based Credit Risk Assessment & Loan Default Prediction</strong>
+</p>
 
+<p align="center">
+  <a href="https://credit-risk-platform1.streamlit.app/">🚀 Live Demo</a>
+  &nbsp;•&nbsp;
+  <a href="https://github.com/uradinarsimulu45/credit-risk-platform">💻 GitHub Repository</a>
+</p>
 
-AI-powered credit risk assessment platform that predicts the probability of loan default using a machine learning model.
+---
 
+## 🚀 Live Demo
 
+### 👉 [Open the Credit Risk Platform](https://credit-risk-platform1.streamlit.app/)
 
-\## Overview
+The application provides an interactive interface for evaluating loan applications and estimating the probability of loan default using a trained machine-learning model.
 
+---
 
+## 📌 Project Overview
 
-The Credit Risk Platform evaluates loan applications using a trained Random Forest classification model.
+The **Credit Risk Platform** is an AI-powered lending analytics application designed to help evaluate the potential credit risk associated with a loan application.
 
+The platform takes financial, employment, credit-history, and loan information as input and uses a **Random Forest machine-learning model** to classify the application into a risk category.
 
+### Core prediction output
 
-The system provides:
+* 🟢 **Low Risk**
+* 🟠 **Medium Risk**
+* 🔴 **High Risk**
+* 📈 Estimated default probability
 
+The project combines **machine learning, Python, Streamlit, FastAPI, SQL, and data analytics** into an end-to-end credit-risk solution.
 
+---
 
-\* Loan default risk prediction
+## ✨ Features
 
-\* Default probability estimation
+### 🤖 Machine Learning
 
-\* Low-risk and high-risk classification
+* Random Forest classification
+* Credit default risk prediction
+* Default probability estimation
+* Feature preprocessing
+* Engineered financial features
+* Model persistence using Joblib
 
-\* Prediction history
+### 📊 Credit Analytics
 
-\* Model statistics
+* Loan risk classification
+* Default probability
+* Loan-to-income analysis
+* Installment-to-income analysis
+* Income-missing indicator
+* Credit profile analysis
 
-\* MySQL database integration
+### 🖥️ Professional Web Interface
 
-\* REST API using FastAPI
+* Modern Streamlit dashboard
+* Responsive layout
+* Professional loan application form
+* Risk classification cards
+* Model status indicator
+* Interactive prediction workflow
 
-\* Professional web-based frontend
+### 📚 Prediction Analytics
 
+* Prediction history
+* Risk statistics
+* Risk distribution
+* Default probability analysis
+* Interactive charts
 
+### 🔌 Backend API
 
-\## Architecture
+The project also contains a FastAPI backend with endpoints for:
 
+* Health checking
+* Model information
+* Credit risk prediction
+* Prediction history
+* Prediction statistics
 
+---
+
+## 🏗️ System Architecture
 
 ```text
-
-&#x20;                   Credit Risk Platform
-
-&#x20;                           |
-
-&#x20;            +--------------+--------------+
-
-&#x20;            |                             |
-
-&#x20;       Frontend                       FastAPI
-
-&#x20;      HTML/CSS/JS                       |
-
-&#x20;            |                    +-------+-------+
-
-&#x20;            |                    |               |
-
-&#x20;            |                ML Model         MySQL
-
-&#x20;            |             Random Forest          |
-
-&#x20;            |                    |               |
-
-&#x20;            +--------------------+---------------+
-
-&#x20;                                 |
-
-&#x20;                        Prediction History
-
-&#x20;                          \& Statistics
-
+                    ┌─────────────────────┐
+                    │     User / Lender   │
+                    └──────────┬──────────┘
+                               │
+                               ▼
+                    ┌─────────────────────┐
+                    │ Streamlit Frontend  │
+                    │  Credit Dashboard   │
+                    └──────────┬──────────┘
+                               │
+                               ▼
+                    ┌─────────────────────┐
+                    │  Feature Engineering│
+                    │                     │
+                    │ loan_to_income      │
+                    │ installment_to_income│
+                    │ income_missing      │
+                    └──────────┬──────────┘
+                               │
+                               ▼
+                    ┌─────────────────────┐
+                    │ Random Forest Model │
+                    │                     │
+                    │ Credit Risk         │
+                    │ Classification      │
+                    └──────────┬──────────┘
+                               │
+                    ┌──────────┴──────────┐
+                    ▼                     ▼
+             ┌──────────────┐     ┌──────────────┐
+             │ Risk Result  │     │ Probability  │
+             │ Low/Med/High │     │    Score     │
+             └──────────────┘     └──────────────┘
 ```
 
+---
 
+## 🧠 Machine Learning Pipeline
 
-\## Technology Stack
-
-
-
-\### Frontend
-
-
-
-\* HTML5
-
-\* CSS3
-
-\* JavaScript
-
-
-
-\### Backend
-
-
-
-\* Python
-
-\* FastAPI
-
-\* Uvicorn
-
-
-
-\### Machine Learning
-
-
-
-\* Scikit-learn
-
-\* Random Forest
-
-\* Joblib
-
-\* Pandas
-
-
-
-\### Database
-
-
-
-\* MySQL
-
-\* SQLAlchemy
-
-\* PyMySQL
-
-
-
-\## Project Structure
-
-
+The prediction pipeline follows these major stages:
 
 ```text
+Loan Application
+       ↓
+Data Validation
+       ↓
+Feature Engineering
+       ↓
+Categorical / Numerical Processing
+       ↓
+Random Forest Model
+       ↓
+Prediction
+       ↓
+Default Probability
+       ↓
+Risk Classification
+```
 
+### Engineered Features
+
+The model uses additional financial indicators including:
+
+| Feature                 | Description                             |
+| ----------------------- | --------------------------------------- |
+| `loan_to_income`        | Loan amount relative to annual income   |
+| `installment_to_income` | Monthly installment relative to income  |
+| `income_missing`        | Indicates missing or unavailable income |
+| `sub_grade`             | More granular credit-grade information  |
+
+---
+
+## 📥 Input Features
+
+The platform accepts information such as:
+
+### Loan Information
+
+* Loan amount
+* Loan term
+* Interest rate
+* Installment
+* Loan purpose
+
+### Applicant Information
+
+* Annual income
+* Employment length
+* Home ownership
+* Income verification status
+
+### Credit Information
+
+* Grade
+* Sub-grade
+* Debt-to-income ratio
+* Delinquencies
+* Open accounts
+* Public records
+* Revolving balance
+* Revolving utilization
+* Total accounts
+* Application type
+
+---
+
+## 📤 Example Prediction
+
+A submitted application produces a result similar to:
+
+```text
+Credit Risk Classification
+--------------------------
+🟢 Low Risk
+
+Estimated Default Probability
+-----------------------------
+27.43%
+```
+
+The probability is generated by the trained machine-learning model.
+
+---
+
+## 🛠️ Technology Stack
+
+### Frontend
+
+* Python
+* Streamlit
+* HTML
+* CSS
+
+### Backend
+
+* FastAPI
+* Uvicorn
+* Pydantic
+
+### Machine Learning
+
+* Python
+* Pandas
+* NumPy
+* Scikit-learn
+* Random Forest
+* Joblib
+
+### Database
+
+* MySQL
+* SQLAlchemy
+* PyMySQL
+
+### Data Processing
+
+* PyArrow
+* Pandas
+
+### Visualization
+
+* Matplotlib
+* Streamlit charts
+
+### Deployment
+
+* Streamlit Community Cloud
+* Render
+
+### Version Control
+
+* Git
+* GitHub
+
+---
+
+## 📁 Project Structure
+
+```text
 credit-risk-platform/
-
 │
-
 ├── backend/
-
 │   └── app/
-
 │       ├── main.py
-
 │       └── database.py
-
 │
-
-├── frontend/
-
-│   ├── index.html
-
-│   ├── style.css
-
-│   └── script.js
-
-│
-
-├── ml/
-
-│   ├── models/
-
-│   │   └── best\_credit\_risk\_model.joblib
-
-│   └── ...
-
-│
-
 ├── data/
-
 │   ├── raw/
-
 │   └── processed/
-
 │
-
+├── frontend/
+│   └── app.py
+│
+├── ml/
+│   ├── models/
+│   │   └── best_credit_risk_model.joblib
+│   │
+│   ├── data_analysis.py
+│   └── ...
+│
 ├── tests/
-
 │
-
 ├── requirements.txt
-
-├── README.md
-
-└── .gitignore
-
+├── .gitignore
+└── README.md
 ```
 
+---
 
+## ⚙️ Local Installation
 
-\## Features
+### 1. Clone the repository
 
+```bash
+git clone https://github.com/uradinarsimulu45/credit-risk-platform.git
+```
 
+### 2. Navigate to the project
 
-\### 1. Loan Application
+```bash
+cd credit-risk-platform
+```
 
+### 3. Create a virtual environment
 
+Windows:
 
-Users can enter:
+```powershell
+python -m venv venv
+```
 
+### 4. Activate the environment
 
+```powershell
+.\venv\Scripts\Activate.ps1
+```
 
-\* Loan amount
+### 5. Install dependencies
 
-\* Loan term
+```powershell
+pip install -r requirements.txt
+```
 
-\* Interest rate
+---
 
-\* Monthly installment
+## ▶️ Run the Streamlit Application
 
-\* Grade
+```powershell
+python -m streamlit run frontend\app.py
+```
 
-\* Sub-grade
+The application will normally be available at:
 
-\* Employment length
+```text
+http://localhost:8501
+```
 
-\* Home ownership
+---
 
-\* Annual income
+## 🔌 Run the FastAPI Backend
 
-\* Verification status
+From the project root:
 
-\* Loan purpose
+```powershell
+uvicorn backend.app.main:app --reload
+```
 
-\* Debt-to-income ratio
+API documentation:
 
-\* Delinquencies
+```text
+http://127.0.0.1:8000/docs
+```
 
-\* Open accounts
+---
 
-\* Public records
+## 🔗 API Endpoints
 
-\* Revolving balance
+The FastAPI backend provides endpoints including:
 
-\* Revolving utilization
+| Method | Endpoint      | Purpose                  |
+| ------ | ------------- | ------------------------ |
+| GET    | `/`           | API information          |
+| GET    | `/health`     | Health check             |
+| GET    | `/model-info` | Model information        |
+| POST   | `/predict`    | Credit risk prediction   |
+| GET    | `/history`    | Prediction history       |
+| DELETE | `/history`    | Clear prediction history |
+| GET    | `/stats`      | Prediction statistics    |
 
-\* Total accounts
+---
 
-\* Application type
+## 🗄️ Database
 
+The backend supports MySQL-based prediction history.
 
+The prediction history table stores:
 
-\### 2. Credit Risk Prediction
-
-
-
-The Random Forest model generates:
-
-
-
-\* Prediction class
-
-\* Risk classification
-
-\* Estimated default probability
-
-\* Prediction ID
-
-
+```text
+id
+timestamp
+prediction
+risk
+default_probability
+```
 
 Example:
 
-
-
-```json
-
-{
-
-&#x20; "prediction": 1,
-
-&#x20; "risk": "High Risk",
-
-&#x20; "default\_probability": 0.55,
-
-&#x20; "prediction\_id": 10
-
-}
-
+```text
++----+---------------------+------------+-----------+---------------------+
+| id | timestamp           | prediction | risk      | default_probability |
++----+---------------------+------------+-----------+---------------------+
+| 10 | 2026-08-23 12:50:38 | 1          | High Risk | 0.5500              |
+|  9 | 2026-08-23 12:50:36 | 1          | High Risk | 0.5500              |
+|  8 | 2026-08-23 12:50:35 | 1          | High Risk | 0.5500              |
++----+---------------------+------------+-----------+---------------------+
 ```
 
+---
 
+## 📊 Analytics Example
 
-\### 3. MySQL Prediction History
-
-
-
-Every prediction is stored in the `prediction\_history` table.
-
-
-
-The table contains:
-
-
+The platform can calculate statistics such as:
 
 ```text
-
-id
-
-timestamp
-
-prediction
-
-risk
-
-default\_probability
-
+Total Predictions       : 10
+Low Risk                : 7
+High Risk               : 3
+Average Default Risk    : 39.04%
+High Risk Percentage    : 30%
 ```
 
+These analytics help provide a quick overview of the application's credit-risk distribution.
 
+---
 
-\### 4. Model Statistics
+## 🔐 Environment Variables
 
+For database-enabled deployments, configure environment variables rather than committing credentials to GitHub.
 
-
-The dashboard displays:
-
-
-
-\* Total predictions
-
-\* Low-risk predictions
-
-\* High-risk predictions
-
-\* Average default probability
-
-\* High-risk percentage
-
-
-
-\## Database Setup
-
-
-
-Create the database in MySQL:
-
-
-
-```sql
-
-CREATE DATABASE credit\_risk;
-
-```
-
-
-
-Select the database:
-
-
-
-```sql
-
-USE credit\_risk;
-
-```
-
-
-
-The application uses the `prediction\_history` table for storing prediction results.
-
-
-
-\## Environment Variables
-
-
-
-Create a `.env` file in the project root:
-
-
+Example:
 
 ```text
-
-DB\_USER=root
-
-DB\_PASSWORD=your\_mysql\_password
-
-DB\_HOST=localhost
-
-DB\_PORT=3306
-
-DB\_NAME=credit\_risk
-
+DB_HOST=
+DB_PORT=
+DB_USER=
+DB_PASSWORD=
+DB_NAME=
 ```
 
+Never commit:
 
-
-Do not commit `.env` to GitHub.
-
-
-
-\## Installation
-
-
-
-Clone the repository:
-
-
-
-```bash
-
-git clone https://github.com/uradinarsimulu45/credit-risk-platform.git
-
-cd credit-risk-platform
-
+```text
+.env
+database passwords
+API keys
+private credentials
 ```
 
+---
 
+## 🚀 Deployment
 
-Create a virtual environment:
+### Streamlit
 
+The current live application is deployed using Streamlit Community Cloud.
 
+**Live application:**
 
-```bash
+👉 https://credit-risk-platform1.streamlit.app/
 
-python -m venv venv
+### FastAPI
 
-```
+The backend API can be deployed separately using a cloud hosting provider such as Render.
 
+---
 
+## 🧪 Testing
 
-Activate it on Windows:
-
-
+Before deployment, verify:
 
 ```powershell
-
-.\\venv\\Scripts\\Activate.ps1
-
+python -m streamlit run frontend\app.py
 ```
 
+and test:
 
+* Application loads
+* Model loads successfully
+* Loan form accepts input
+* Prediction executes
+* Risk classification is displayed
+* Default probability is displayed
+* Prediction history works
+* Charts render correctly
 
-Install dependencies:
+---
 
+## 🎯 Project Goals
 
+The main objectives of this project are:
 
-```bash
+1. Build an end-to-end credit risk prediction system.
+2. Apply machine learning to lending decisions.
+3. Engineer meaningful financial features.
+4. Provide an intuitive analytics dashboard.
+5. Store and analyze prediction history.
+6. Expose prediction functionality through an API.
+7. Deploy the application to the cloud.
 
-pip install -r requirements.txt
+---
 
-```
+## 🔮 Future Improvements
 
+Potential future enhancements include:
 
+* [ ] Real-time MySQL integration with Streamlit
+* [ ] User authentication
+* [ ] Explainable AI using SHAP
+* [ ] Feature importance visualization
+* [ ] Advanced risk scoring
+* [ ] Loan portfolio analytics
+* [ ] Automated model retraining
+* [ ] Model monitoring
+* [ ] Data drift detection
+* [ ] Docker deployment
+* [ ] CI/CD pipeline
 
-\## Run the Backend
+---
 
+## 📸 Screenshots
 
+Add screenshots of the deployed application here.
 
-```bash
-
-python -m uvicorn backend.app.main:app --reload
-
-```
-
-
-
-Backend:
-
-
+Example:
 
 ```text
-
-http://127.0.0.1:8000
-
+docs/
+├── dashboard.png
+├── prediction.png
+├── history.png
+└── analytics.png
 ```
 
+Then add them to this section:
 
+```markdown
+![Credit Risk Dashboard](docs/dashboard.png)
 
-Swagger API documentation:
-
-
-
-```text
-
-http://127.0.0.1:8000/docs
-
+![Credit Risk Prediction](docs/prediction.png)
 ```
 
+---
 
+## 👨‍💻 Developer
 
-\## Run the Frontend
+**URADI NARSIMULU**
 
+Computer Science & Engineering Student
+Interested in:
 
+* Software Development
+* Data Analytics
+* Machine Learning
+* Artificial Intelligence
+* Generative AI
 
-Open another terminal:
+### 🔗 Links
 
+* **Live Demo:** https://credit-risk-platform1.streamlit.app/
+* **GitHub:** https://github.com/uradinarsimulu45/credit-risk-platform
 
+---
 
-```bash
+## ⭐ Support
 
-python -m http.server 5500 --directory frontend
+If you find this project useful, consider giving the repository a ⭐ on GitHub.
 
-```
+---
 
+## 📄 License
 
-
-Frontend:
-
-
-
-```text
-
-http://127.0.0.1:5500
-
-```
-
-
-
-\## Database Verification
-
-
-
-To view prediction history:
-
-
-
-```sql
-
-USE credit\_risk;
-
-
-
-SELECT \*
-
-FROM prediction\_history
-
-ORDER BY id DESC;
-
-```
-
-
-
-\## Current Development Verification
-
-
-
-The integrated system has been tested with:
-
-
-
-\* FastAPI backend
-
-\* Random Forest prediction
-
-\* MySQL storage
-
-\* Prediction history
-
-\* Prediction statistics
-
-\* Professional frontend
-
-
-
-Example verified statistics during development:
-
-
-
-```text
-
-Total Predictions:       10
-
-Low Risk:                 7
-
-High Risk:                3
-
-Average Default Risk:    39.04%
-
-High Risk Rate:          30.00%
-
-```
-
-
-
-\## API
-
-
-
-The backend provides endpoints for:
-
-
-
-\* Health/status
-
-\* Credit risk prediction
-
-\* Prediction history
-
-\* Prediction statistics
-
-\* Clearing prediction history
-
-
-
-Full endpoint details are available through FastAPI Swagger:
-
-
-
-```text
-
-http://127.0.0.1:8000/docs
-
-```
-
-
-
-\## Security Notes
-
-
-
-\* Database credentials should be stored in `.env`.
-
-\* `.env` should not be committed to Git.
-
-\* Production deployments should use restricted CORS origins.
-
-\* Production database credentials should use a dedicated database user rather than the MySQL root account.
-
-
-
-\## Future Improvements
-
-
-
-Possible future enhancements include:
-
-
-
-\* User authentication
-
-\* Explainable AI
-
-\* SHAP-based feature importance
-
-\* Model monitoring
-
-\* Advanced analytics dashboard
-
-\* Automated model retraining
-
-\* Cloud deployment
-
-\* Role-based access control
-
-
-
-\## Author
-
-
-
-URADI NARSIMULU
-
-
-
-GitHub:
-
-
-
-https://github.com/uradinarsimulu45
-
-
-
-\## License
-
-
-
-This project is developed for educational and internship project purposes.
-
-
-
+This project is intended for educational, portfolio, and demonstration purposes.
